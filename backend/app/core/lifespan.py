@@ -7,52 +7,31 @@ from typing import AsyncIterator
 from fastapi import FastAPI
 
 from app.core.config import Settings, get_settings
+from app.services.advisor_service import AdvisorService
+from app.services.disease_service import DiseaseService
+from app.services.yield_service import YieldService
 
 logger = logging.getLogger(__name__)
 
 
-def _check_artifact_dir(path_name: str, required_files: list[str]) -> dict:
-    """Check if artifact directory exists and list missing required files."""
-    settings = get_settings()
-    path = getattr(settings, f"{path_name}_artifacts_path")
-
-    if not path.exists():
-        return {
-            "loaded": False,
-            "message": f"Directory not found: {path}",
-            "missing_files": required_files,
-        }
-
-    missing = [f for f in required_files if not (path / f).exists()]
-    if missing:
-        return {
-            "loaded": False,
-            "message": f"Missing {len(missing)} required file(s)",
-            "missing_files": missing,
-        }
-
-    return {"loaded": False, "message": "Phase 1 stub — models not loaded yet"}
-
-
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncIterator[None]:
-    """Startup: verify artifact directories. Shutdown: cleanup."""
+    """Startup: initialize services and load artifact metadata. Shutdown: cleanup."""
     settings: Settings = get_settings()
     logger.info("Starting AgriIntel backend (env=%s)", settings.app_env)
 
+    app.state.disease_service = DiseaseService(settings=settings)
+    app.state.yield_service = YieldService(settings=settings)
+    app.state.advisor_service = AdvisorService(settings=settings)
+
+    await app.state.disease_service.load()
+    await app.state.yield_service.load()
+    await app.state.advisor_service.load()
+
     app.state.module_status = {
-        "disease": _check_artifact_dir(
-            "disease",
-            ["class_names.json", "image_config.json", "metrics.json"],
-        ),
-        "yield": _check_artifact_dir(
-            "yield",
-            ["feature_config.json", "best_model.json", "preprocessor_full.pkl"],
-        ),
-        "advisor": _check_artifact_dir(
-            "advisor",
-            ["rules.json", "rf_model.pkl", "label_encoders.pkl", "feature_config.json"],
-        ),
+        "disease": app.state.disease_service.status,
+        "yield": app.state.yield_service.status,
+        "advisor": app.state.advisor_service.status,
     }
 
     for module, status in app.state.module_status.items():

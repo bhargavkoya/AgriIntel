@@ -3,7 +3,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api.routes import health
+from app.api.routes import advisor, disease, health, history, yield_prediction
 from app.core.config import get_settings
 from app.core.lifespan import lifespan
 from app.core.logging import setup_logging
@@ -27,3 +27,7 @@ app.add_middleware(
 )
 
 app.include_router(health.router, prefix="/api", tags=["health"])
+app.include_router(disease.router, prefix="/api")
+app.include_router(yield_prediction.router, prefix="/api")
+app.include_router(advisor.router, prefix="/api")
+app.include_router(history.router, prefix="/api")
