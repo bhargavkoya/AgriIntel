@@ -16,3 +16,7 @@ def test_health_endpoint() -> None:
         assert "disease" in data["modules"]
         assert "yield" in data["modules"]
         assert "advisor" in data["modules"]
+
+        for module_name in ("disease", "yield", "advisor"):
+            assert "loaded" in data["modules"][module_name]
+            assert "message" in data["modules"][module_name]
