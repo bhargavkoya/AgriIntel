@@ -6,6 +6,10 @@ DEFAULT_TEMPERATURE = 0.3
 DEFAULT_MAX_TOKENS = 400
 
 
+class LLMProviderError(RuntimeError):
+    """Raised when an LLM provider is unavailable, unconfigured, or errors."""
+
+
 class LLMProvider(Protocol):
     """Protocol for LLM text generation. Implementations: Groq, Gemini.
 

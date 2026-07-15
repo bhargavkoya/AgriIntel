@@ -8,14 +8,23 @@ from app.core.config import Settings, get_settings
 from app.integrations.llm.base import LLMProvider
 from app.integrations.llm.groq_provider import create_groq_provider
 from app.ml.advisor import AdvisorArtifacts, load_advisor_artifacts, run_full_pipeline
+from app.repositories.prediction_repository import PredictionRepository
+from app.services.history_helper import persist_prediction
 
 logger = logging.getLogger(__name__)
+
+ADVISOR_MODEL_NAME = "rf_classifier"
 
 
 class AdvisorService:
     """Orchestrates the 3-layer soil health advisory pipeline."""
 
-    def __init__(self, settings: Settings | None = None, llm_provider: LLMProvider | None = None) -> None:
+    def __init__(
+        self,
+        settings: Settings | None = None,
+        llm_provider: LLMProvider | None = None,
+        prediction_repository: PredictionRepository | None = None,
+    ) -> None:
         self._settings = settings or get_settings()
         self._llm_provider = llm_provider or create_groq_provider(
             api_key=self._settings.groq_api_key,
@@ -23,6 +32,7 @@ class AdvisorService:
             temperature=self._settings.groq_temperature,
             max_tokens=self._settings.groq_max_tokens,
         )
+        self._prediction_repository = prediction_repository or PredictionRepository()
         self._loaded = False
         self._status: dict = {"loaded": False, "message": "Service not initialized", "missing_files": []}
         self._language_codes: dict[str, str] = {"English": "en", "Hindi": "hi", "Telugu": "te"}
@@ -120,7 +130,7 @@ class AdvisorService:
         if generate_llm and result["advisories"]:
             layer3 = {"advisories": result["advisories"]}
 
-        return {
+        payload = {
             "layer1": {
                 "nutrient_statuses": nutrient_statuses,
                 "overall_label": result["overall_label"],
@@ -134,6 +144,17 @@ class AdvisorService:
             "layer3": layer3,
             "inference_time_ms": inference_time_ms,
         }
+
+        await persist_prediction(
+            self._prediction_repository,
+            module="advisor",
+            model_name=ADVISOR_MODEL_NAME,
+            request_json=request_data,
+            response_json=payload,
+            latency_ms=inference_time_ms,
+        )
+
+        return payload
 
     async def list_languages(self) -> dict:
         """Return supported advisory languages."""

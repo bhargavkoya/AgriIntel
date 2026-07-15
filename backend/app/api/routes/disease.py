@@ -26,7 +26,7 @@ async def predict_disease(
         raise HTTPException(status_code=400, detail="Uploaded file is empty")
 
     try:
-        payload = await service.predict(image_bytes=image_bytes, model_name=model)
+        payload = await service.predict(image_bytes=image_bytes, model_name=model, filename=file.filename)
     except KeyError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
     except UnidentifiedImageError as exc:
