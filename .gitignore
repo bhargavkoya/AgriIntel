@@ -3,6 +3,9 @@
 .env.local
 .env.*.local
 
+# Local Claude session memory (not shared with the team)
+CLAUDE_LOCAL.md
+
 # Python
 __pycache__/
 *.py[cod]
