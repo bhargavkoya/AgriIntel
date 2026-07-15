@@ -1,12 +1,33 @@
 """Yield prediction service — Phase 3 implementation."""
 
-import json
 import logging
+from importlib import import_module
 from pathlib import Path
+from time import perf_counter
 
 from app.core.config import Settings, get_settings
 
+# "yield" is a Python keyword, so app.ml.yield can't be reached with a normal import statement.
+_yield_ml = import_module("app.ml.yield")
+YieldArtifacts = _yield_ml.YieldArtifacts
+load_yield_artifacts = _yield_ml.load_yield_artifacts
+predict_yield = _yield_ml.predict_yield
+
 logger = logging.getLogger(__name__)
+
+
+def _to_notebook_fields(request_data: dict) -> dict:
+    """Map API request field names onto the notebook's PascalCase feature names."""
+    return {
+        "Crop": request_data["crop"],
+        "State": request_data["state"],
+        "Season": request_data["season"],
+        "Annual_Rainfall": request_data["annual_rainfall"],
+        "Area": request_data["area"],
+        "Fertilizer": request_data["fertilizer"],
+        "Pesticide": request_data["pesticide"],
+        "Crop_Year": request_data["year"],
+    }
 
 
 class YieldService:
@@ -17,6 +38,7 @@ class YieldService:
         self._loaded = False
         self._status: dict = {"loaded": False, "message": "Service not initialized", "missing_files": []}
         self._metadata: dict = {"default_model": "xgb_full", "models": []}
+        self._artifacts: YieldArtifacts | None = None
 
     @property
     def is_loaded(self) -> bool:
@@ -31,7 +53,7 @@ class YieldService:
         return self._settings.yield_artifacts_path
 
     async def load(self) -> None:
-        """Load yield artifact metadata at startup (model execution in sub-phase 3.2)."""
+        """Load yield artifacts and models into memory at startup."""
         required_files = ["feature_config.json", "best_model.json", "preprocessor_full.pkl"]
         if not self.artifact_dir.exists():
             self._loaded = False
@@ -52,19 +74,16 @@ class YieldService:
             }
             return
 
-        best_model_data = json.loads((self.artifact_dir / "best_model.json").read_text(encoding="utf-8"))
-        best_name = str(best_model_data.get("best_full_model") or "XGBoost (full)").lower()
-        if "xgboost" in best_name:
-            default_model = "xgb_full"
-        elif "random" in best_name:
-            default_model = "rf_full"
-        elif "gradient" in best_name or "hist" in best_name:
-            default_model = "gb_full"
-        else:
-            default_model = "xgb_full"
+        try:
+            artifacts = load_yield_artifacts(self.artifact_dir)
+        except Exception as exc:  # noqa: BLE001 - surfaced via status, not raised
+            self._loaded = False
+            self._status = {"loaded": False, "message": f"Failed to load yield artifacts: {exc}", "missing_files": []}
+            logger.exception("YieldService failed to load artifacts from %s", self.artifact_dir)
+            return
 
         self._metadata = {
-            "default_model": default_model,
+            "default_model": artifacts.default_model_key,
             "models": [
                 {"key": "xgb_full", "algorithm": "XGBoost", "feature_set": "full", "r2": None, "rmse": None, "mae": None},
                 {"key": "xgb_min", "algorithm": "XGBoost", "feature_set": "min", "r2": None, "rmse": None, "mae": None},
@@ -74,24 +93,33 @@ class YieldService:
                 {"key": "gb_min", "algorithm": "HistGradientBoosting", "feature_set": "min", "r2": None, "rmse": None, "mae": None},
             ],
         }
+        self._artifacts = artifacts
         self._loaded = True
         self._status = {
             "loaded": True,
-            "message": "Yield artifacts verified; inference execution will be enabled in sub-phase 3.2",
+            "message": "Yield artifacts and models loaded",
             "missing_files": [],
         }
-        logger.info("YieldService metadata loaded from %s", self.artifact_dir)
+        logger.info("YieldService models loaded from %s", self.artifact_dir)
 
     async def predict(self, request_data: dict, model_key: str | None = None) -> dict:
-        """Return schema-compatible placeholder response for Phase 3.1 wiring."""
-        selected_model = model_key or request_data.get("model") or self._metadata.get("default_model", "xgb_full")
-        feature_set = "full" if str(selected_model).endswith("_full") else "min"
+        """Run yield inference for the requested (or default) model variant."""
+        if not self._loaded or self._artifacts is None:
+            raise RuntimeError("Yield service artifacts are not loaded")
+
+        selected_model_key = model_key or request_data.get("model") or self._artifacts.default_model_key
+        notebook_fields = _to_notebook_fields(request_data)
+
+        started_at = perf_counter()
+        result = predict_yield(notebook_fields, self._artifacts, selected_model_key)
+        inference_time_ms = int((perf_counter() - started_at) * 1000)
+
         return {
-            "predicted_yield": 0.0,
+            "predicted_yield": result["predicted_yield"],
             "unit": "tonnes/ha",
-            "model_used": selected_model,
-            "feature_set": feature_set,
-            "inference_time_ms": 0,
+            "model_used": result["model_key"],
+            "feature_set": result["feature_set"],
+            "inference_time_ms": inference_time_ms,
             "feature_importance": None,
         }
 

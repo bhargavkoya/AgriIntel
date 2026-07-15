@@ -14,7 +14,7 @@ class GeminiProvider:
         self._api_key = api_key
         self._model = model
 
-    async def generate(self, system: str, user: str) -> str:
+    def generate(self, prompt: str, *, temperature: float | None = None, max_tokens: int | None = None) -> str:
         """Generate advisory text via Gemini API. Not yet implemented."""
         raise NotImplementedError("GeminiProvider — future implementation")
 

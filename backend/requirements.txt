@@ -8,13 +8,15 @@ python-dotenv>=1.0.1
 httpx>=0.28.0
 pytest>=8.3.0
 
-# ML dependencies (used in Phase 3+)
-# tensorflow>=2.18.0
-# scikit-learn>=1.5.0
-# xgboost>=2.1.0
-# joblib>=1.4.0
-# pandas>=2.2.0
-# numpy>=2.1.0
-# pillow>=11.0.0
+# ML dependencies (sub-phase 3.2 — real inference)
+tensorflow>=2.18.0
+scikit-learn>=1.5.0
+xgboost>=2.1.0
+joblib>=1.4.0
+pandas>=2.2.0
+numpy>=2.1.0
+pillow>=11.0.0
+
+# LLM / translation dependencies (sub-phase 3.3 — persistence + LLM)
 # groq>=0.11.0
 # deep-translator>=1.11.0

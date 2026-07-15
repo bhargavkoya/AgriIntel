@@ -1,10 +1,13 @@
 """Soil health advisor service — Phase 3 implementation."""
 
-import json
 import logging
 from pathlib import Path
+from time import perf_counter
 
 from app.core.config import Settings, get_settings
+from app.integrations.llm.base import LLMProvider
+from app.integrations.llm.groq_provider import create_groq_provider
+from app.ml.advisor import AdvisorArtifacts, load_advisor_artifacts, run_full_pipeline
 
 logger = logging.getLogger(__name__)
 
@@ -12,11 +15,18 @@ logger = logging.getLogger(__name__)
 class AdvisorService:
     """Orchestrates the 3-layer soil health advisory pipeline."""
 
-    def __init__(self, settings: Settings | None = None) -> None:
+    def __init__(self, settings: Settings | None = None, llm_provider: LLMProvider | None = None) -> None:
         self._settings = settings or get_settings()
+        self._llm_provider = llm_provider or create_groq_provider(
+            api_key=self._settings.groq_api_key,
+            model=self._settings.groq_model,
+            temperature=self._settings.groq_temperature,
+            max_tokens=self._settings.groq_max_tokens,
+        )
         self._loaded = False
         self._status: dict = {"loaded": False, "message": "Service not initialized", "missing_files": []}
         self._language_codes: dict[str, str] = {"English": "en", "Hindi": "hi", "Telugu": "te"}
+        self._artifacts: AdvisorArtifacts | None = None
 
     @property
     def artifact_dir(self) -> Path:
@@ -31,7 +41,7 @@ class AdvisorService:
         return self._status
 
     async def load(self) -> None:
-        """Load advisor artifact metadata at startup (full pipeline in sub-phase 3.2)."""
+        """Load advisor artifacts and the RF model into memory at startup."""
         required_files = [
             "rules.json",
             "rf_model.pkl",
@@ -59,60 +69,70 @@ class AdvisorService:
             }
             return
 
-        self._language_codes = json.loads((self.artifact_dir / "language_codes.json").read_text(encoding="utf-8"))
+        try:
+            artifacts = load_advisor_artifacts(self.artifact_dir)
+        except Exception as exc:  # noqa: BLE001 - surfaced via status, not raised
+            self._loaded = False
+            self._status = {"loaded": False, "message": f"Failed to load advisor artifacts: {exc}", "missing_files": []}
+            logger.exception("AdvisorService failed to load artifacts from %s", self.artifact_dir)
+            return
+
+        self._artifacts = artifacts
+        self._language_codes = dict(artifacts.language_codes)
         self._loaded = True
         self._status = {
             "loaded": True,
-            "message": "Advisor artifacts verified; pipeline execution will be enabled in sub-phase 3.2",
+            "message": "Advisor artifacts and model loaded",
             "missing_files": [],
         }
-        logger.info("AdvisorService metadata loaded from %s", self.artifact_dir)
+        logger.info("AdvisorService model loaded from %s", self.artifact_dir)
 
     async def recommend(self, request_data: dict, generate_llm: bool = True) -> dict:
-        """Return schema-compatible placeholder response for Phase 3.1 wiring."""
-        nutrient_fields = [
-            "ph",
-            "organic_carbon",
-            "nitrogen",
-            "phosphorus",
-            "potassium",
-            "sulphur",
-            "zinc",
-            "boron",
-            "iron",
-            "manganese",
-            "copper",
-        ]
+        """Run the 3-layer soil health advisory pipeline for a single request."""
+        if not self._loaded or self._artifacts is None:
+            raise RuntimeError("Advisor service artifacts are not loaded")
+
+        started_at = perf_counter()
+        results = run_full_pipeline(
+            [request_data],
+            self._artifacts,
+            generate_llm=generate_llm,
+            llm_provider=self._llm_provider if generate_llm else None,
+            llm_languages=list(self._artifacts.language_codes) if generate_llm else None,
+        )
+        inference_time_ms = int((perf_counter() - started_at) * 1000)
+        result = results[0]
+
         nutrient_statuses = {
-            field: {
-                "value": float(request_data.get(field, 0.0)),
-                "status": "Pending",
-                "recommendation": "Will be computed in sub-phase 3.2",
+            item["column"]: {
+                "value": float(item["value"]) if item["value"] is not None else 0.0,
+                "status": item["status"],
+                "recommendation": item["recommendation"] or None,
             }
-            for field in nutrient_fields
+            for item in result["context"]["nutrients"]
+        }
+
+        class_probabilities = {
+            label: round(float(probability) / 100, 4) for label, probability in result["l2_confidence"].items()
         }
 
         layer3 = None
-        if generate_llm:
-            layer3 = {
-                "advisories": {
-                    "English": "LLM advisory generation will be enabled in sub-phase 3.2",
-                }
-            }
+        if generate_llm and result["advisories"]:
+            layer3 = {"advisories": result["advisories"]}
 
         return {
             "layer1": {
                 "nutrient_statuses": nutrient_statuses,
-                "overall_label": "Pending",
-                "problem_count": 0,
+                "overall_label": result["overall_label"],
+                "problem_count": result["problem_count"],
             },
             "layer2": {
-                "prediction": "Pending",
-                "confidence": 0.0,
-                "class_probabilities": {"Poor": 0.0, "Moderate": 0.0, "Good": 0.0},
+                "prediction": result["l2_prediction"],
+                "confidence": class_probabilities.get(result["l2_prediction"], 0.0),
+                "class_probabilities": class_probabilities,
             },
             "layer3": layer3,
-            "inference_time_ms": 0,
+            "inference_time_ms": inference_time_ms,
         }
 
     async def list_languages(self) -> dict:

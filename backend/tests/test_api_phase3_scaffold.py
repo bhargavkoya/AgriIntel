@@ -26,7 +26,9 @@ def test_openapi_contains_phase3_routes() -> None:
     assert "/api/history" in paths
 
 
-def test_yield_predict_scaffold_response() -> None:
+def test_yield_predict_returns_503_without_artifacts() -> None:
+    # No real artifacts are checked into the repo, so the service reports
+    # unloaded and the route must fail fast rather than fabricate a prediction.
     payload = {
         "crop": "Rice",
         "state": "Kerala",
@@ -41,11 +43,7 @@ def test_yield_predict_scaffold_response() -> None:
     with TestClient(app) as client:
         response = client.post("/api/yield/predict", json=payload)
 
-    assert response.status_code == 200
-    body = response.json()
-    assert body["model_used"]
-    assert body["unit"] == "tonnes/ha"
-    assert "feature_set" in body
+    assert response.status_code == 503
 
 
 def test_advisor_languages_scaffold_response() -> None:

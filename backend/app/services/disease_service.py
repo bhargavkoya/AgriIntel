@@ -2,9 +2,14 @@
 
 import json
 import logging
+from io import BytesIO
 from pathlib import Path
+from time import perf_counter
+
+from PIL import Image
 
 from app.core.config import Settings, get_settings
+from app.ml.disease import DiseaseArtifacts, load_disease_artifacts, predict_leaf
 
 logger = logging.getLogger(__name__)
 
@@ -19,6 +24,20 @@ ACTIVE_MODEL_MAP = {
     "vgg": "vgg16",
 }
 
+FILE_TO_SHORT_NAME = {
+    "custom.keras": "custom",
+    "efficientnet.keras": "efficientnet",
+    "resnet.keras": "resnet",
+    "vgg16.keras": "vgg16",
+}
+
+SHORT_TO_DISPLAY_NAME = {
+    "custom": "Custom CNN",
+    "efficientnet": "EfficientNetB0",
+    "resnet": "ResNet50",
+    "vgg16": "VGG16",
+}
+
 
 class DiseaseService:
     """Orchestrates crop disease detection inference."""
@@ -28,6 +47,7 @@ class DiseaseService:
         self._loaded = False
         self._status: dict = {"loaded": False, "message": "Service not initialized", "missing_files": []}
         self._metadata: dict = {"active_model": "efficientnet", "models": []}
+        self._artifacts: DiseaseArtifacts | None = None
 
     @property
     def is_loaded(self) -> bool:
@@ -42,7 +62,7 @@ class DiseaseService:
         return self._settings.disease_artifacts_path
 
     async def load(self) -> None:
-        """Load disease artifact metadata at startup (model loading in sub-phase 3.2)."""
+        """Load disease artifacts and models into memory at startup."""
         required_files = ["class_names.json", "image_config.json", "metrics.json"]
         if not self.artifact_dir.exists():
             self._loaded = False
@@ -63,56 +83,73 @@ class DiseaseService:
             }
             return
 
+        try:
+            artifacts = load_disease_artifacts(self.artifact_dir)
+        except Exception as exc:  # noqa: BLE001 - surfaced via status, not raised
+            self._loaded = False
+            self._status = {"loaded": False, "message": f"Failed to load disease artifacts: {exc}", "missing_files": []}
+            logger.exception("DiseaseService failed to load artifacts from %s", self.artifact_dir)
+            return
+
         image_config = json.loads((self.artifact_dir / "image_config.json").read_text(encoding="utf-8"))
         metrics = json.loads((self.artifact_dir / "metrics.json").read_text(encoding="utf-8"))
         active_model = str(metrics.get("active_model") or "EfficientNetB0")
 
-        reverse_name_map = {
-            "custom.keras": "custom",
-            "efficientnet.keras": "efficientnet",
-            "resnet.keras": "resnet",
-            "vgg16.keras": "vgg16",
-        }
-
-        model_rows = []
-        for file_name, config in image_config.items():
-            model_rows.append(
-                {
-                    "name": reverse_name_map.get(file_name, file_name.replace(".keras", "")),
-                    "file": file_name,
-                    "input_size": [int(config["height"]), int(config["width"])],
-                    "preprocess_mode": str(config["preprocess_mode"]),
-                    "test_accuracy": None,
-                }
-            )
+        model_rows = [
+            {
+                "name": FILE_TO_SHORT_NAME.get(file_name, file_name.replace(".keras", "")),
+                "file": file_name,
+                "input_size": [int(config["height"]), int(config["width"])],
+                "preprocess_mode": str(config["preprocess_mode"]),
+                "test_accuracy": None,
+            }
+            for file_name, config in image_config.items()
+        ]
 
         normalized_active = ACTIVE_MODEL_MAP.get(active_model.strip().lower(), "efficientnet")
         if active_model.endswith(".keras"):
-            normalized_active = reverse_name_map.get(active_model, normalized_active)
+            normalized_active = FILE_TO_SHORT_NAME.get(active_model, normalized_active)
 
+        self._artifacts = artifacts
         self._metadata = {"active_model": normalized_active, "models": model_rows}
         self._loaded = True
         self._status = {
             "loaded": True,
-            "message": "Disease artifacts verified; inference execution will be enabled in sub-phase 3.2",
+            "message": "Disease artifacts and models loaded",
             "missing_files": [],
         }
-        logger.info("DiseaseService metadata loaded from %s", self.artifact_dir)
+        logger.info("DiseaseService models loaded from %s", self.artifact_dir)
 
     async def predict(self, image_bytes: bytes, model_name: str | None = None) -> dict:
-        """Return schema-compatible placeholder response for Phase 3.1 wiring."""
-        model_used = model_name or self._metadata.get("active_model", "efficientnet")
+        """Run leaf disease inference against the requested (or active) model."""
+        if not self._loaded or self._artifacts is None:
+            raise RuntimeError("Disease service artifacts are not loaded")
+
+        display_name = None
+        if model_name:
+            display_name = SHORT_TO_DISPLAY_NAME.get(model_name)
+            if display_name is None:
+                raise KeyError(f"Unknown disease model: {model_name}")
+
+        image = Image.open(BytesIO(image_bytes))
+        started_at = perf_counter()
+        result = predict_leaf(image, self._artifacts, display_name)
+        inference_time_ms = int((perf_counter() - started_at) * 1000)
+
         return {
             "prediction": {
-                "class_name": "NotImplemented",
-                "class_index": -1,
-                "confidence": 0.0,
-                "verdict": "PENDING",
-                "low_confidence_warning": True,
+                "class_name": result["label"],
+                "class_index": self._artifacts.class_names.index(result["label"]),
+                "confidence": result["confidence"],
+                "verdict": result["status"],
+                "low_confidence_warning": result["low_confidence"],
             },
-            "model_used": model_used,
-            "top_predictions": [],
-            "inference_time_ms": 0,
+            "model_used": FILE_TO_SHORT_NAME.get(result["model_file"], result["model_name"]),
+            "top_predictions": [
+                {"class_name": item["label"], "confidence": item["confidence"]}
+                for item in result["top_predictions"]
+            ],
+            "inference_time_ms": inference_time_ms,
         }
 
     async def list_models(self) -> dict:
