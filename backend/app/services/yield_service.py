@@ -6,6 +6,8 @@ from pathlib import Path
 from time import perf_counter
 
 from app.core.config import Settings, get_settings
+from app.repositories.prediction_repository import PredictionRepository
+from app.services.history_helper import persist_prediction
 
 # "yield" is a Python keyword, so app.ml.yield can't be reached with a normal import statement.
 _yield_ml = import_module("app.ml.yield")
@@ -33,8 +35,13 @@ def _to_notebook_fields(request_data: dict) -> dict:
 class YieldService:
     """Orchestrates crop yield prediction inference."""
 
-    def __init__(self, settings: Settings | None = None) -> None:
+    def __init__(
+        self,
+        settings: Settings | None = None,
+        prediction_repository: PredictionRepository | None = None,
+    ) -> None:
         self._settings = settings or get_settings()
+        self._prediction_repository = prediction_repository or PredictionRepository()
         self._loaded = False
         self._status: dict = {"loaded": False, "message": "Service not initialized", "missing_files": []}
         self._metadata: dict = {"default_model": "xgb_full", "models": []}
@@ -114,7 +121,7 @@ class YieldService:
         result = predict_yield(notebook_fields, self._artifacts, selected_model_key)
         inference_time_ms = int((perf_counter() - started_at) * 1000)
 
-        return {
+        payload = {
             "predicted_yield": result["predicted_yield"],
             "unit": "tonnes/ha",
             "model_used": result["model_key"],
@@ -122,6 +129,17 @@ class YieldService:
             "inference_time_ms": inference_time_ms,
             "feature_importance": None,
         }
+
+        await persist_prediction(
+            self._prediction_repository,
+            module="yield",
+            model_name=payload["model_used"],
+            request_json=request_data,
+            response_json=payload,
+            latency_ms=inference_time_ms,
+        )
+
+        return payload
 
     async def list_models(self) -> dict:
         """Return available model metadata from artifacts."""

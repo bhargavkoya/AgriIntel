@@ -3,6 +3,7 @@
 from fastapi import Request
 
 from app.core.config import Settings, get_settings
+from app.repositories.prediction_repository import PredictionRepository
 from app.services.advisor_service import AdvisorService
 from app.services.disease_service import DiseaseService
 from app.services.yield_service import YieldService
@@ -10,6 +11,10 @@ from app.services.yield_service import YieldService
 
 def get_app_settings() -> Settings:
     return get_settings()
+
+
+def get_prediction_repository() -> PredictionRepository:
+    return PredictionRepository()
 
 
 def get_disease_service(request: Request) -> DiseaseService:

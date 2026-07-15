@@ -54,6 +54,10 @@ class Settings(BaseSettings):
         return self.repo_root / self.artifacts_advisor_path
 
     @property
+    def upload_path(self) -> Path:
+        return self.repo_root / self.upload_dir
+
+    @property
     def cors_origins_list(self) -> list[str]:
         return [origin.strip() for origin in self.cors_origins.split(",") if origin.strip()]
 

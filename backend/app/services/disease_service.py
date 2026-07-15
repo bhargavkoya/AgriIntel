@@ -10,6 +10,9 @@ from PIL import Image
 
 from app.core.config import Settings, get_settings
 from app.ml.disease import DiseaseArtifacts, load_disease_artifacts, predict_leaf
+from app.repositories.file_repository import FileRepository
+from app.repositories.prediction_repository import PredictionRepository
+from app.services.history_helper import persist_prediction
 
 logger = logging.getLogger(__name__)
 
@@ -42,8 +45,15 @@ SHORT_TO_DISPLAY_NAME = {
 class DiseaseService:
     """Orchestrates crop disease detection inference."""
 
-    def __init__(self, settings: Settings | None = None) -> None:
+    def __init__(
+        self,
+        settings: Settings | None = None,
+        prediction_repository: PredictionRepository | None = None,
+        file_repository: FileRepository | None = None,
+    ) -> None:
         self._settings = settings or get_settings()
+        self._prediction_repository = prediction_repository or PredictionRepository()
+        self._file_repository = file_repository or FileRepository()
         self._loaded = False
         self._status: dict = {"loaded": False, "message": "Service not initialized", "missing_files": []}
         self._metadata: dict = {"active_model": "efficientnet", "models": []}
@@ -120,7 +130,7 @@ class DiseaseService:
         }
         logger.info("DiseaseService models loaded from %s", self.artifact_dir)
 
-    async def predict(self, image_bytes: bytes, model_name: str | None = None) -> dict:
+    async def predict(self, image_bytes: bytes, model_name: str | None = None, filename: str | None = None) -> dict:
         """Run leaf disease inference against the requested (or active) model."""
         if not self._loaded or self._artifacts is None:
             raise RuntimeError("Disease service artifacts are not loaded")
@@ -136,7 +146,7 @@ class DiseaseService:
         result = predict_leaf(image, self._artifacts, display_name)
         inference_time_ms = int((perf_counter() - started_at) * 1000)
 
-        return {
+        payload = {
             "prediction": {
                 "class_name": result["label"],
                 "class_index": self._artifacts.class_names.index(result["label"]),
@@ -151,6 +161,22 @@ class DiseaseService:
             ],
             "inference_time_ms": inference_time_ms,
         }
+
+        try:
+            await self._file_repository.save(filename=filename or "upload", content=image_bytes, module="disease")
+        except Exception:  # noqa: BLE001 - best-effort side effect, never fails the request
+            logger.exception("Failed to persist uploaded disease image")
+
+        await persist_prediction(
+            self._prediction_repository,
+            module="disease",
+            model_name=payload["model_used"],
+            request_json={"filename": filename, "model": model_name},
+            response_json=payload,
+            latency_ms=inference_time_ms,
+        )
+
+        return payload
 
     async def list_models(self) -> dict:
         """Return available model metadata from artifacts."""
