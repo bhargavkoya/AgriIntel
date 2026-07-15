@@ -23,9 +23,9 @@ class GroqProvider:
         self._max_tokens = max_tokens
         self._client = None
 
-    async def generate(self, system: str, user: str) -> str:
-        """Generate advisory text via Groq API. Implemented in Phase 3."""
-        raise NotImplementedError("GroqProvider.generate() — Phase 3")
+    def generate(self, prompt: str, *, temperature: float | None = None, max_tokens: int | None = None) -> str:
+        """Generate advisory text via Groq API. Implemented in sub-phase 3.3."""
+        raise NotImplementedError("GroqProvider.generate() — sub-phase 3.3")
 
 
 def create_groq_provider(
