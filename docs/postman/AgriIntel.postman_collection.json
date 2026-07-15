@@ -1,0 +1,94 @@
+{
+  "info": {
+    "name": "AgriIntel API",
+    "description": "Local testing collection for the AgriIntel FastAPI backend. Set the `baseUrl` collection variable if your server isn't on the default port.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8000" }
+  ],
+  "item": [
+    {
+      "name": "Health",
+      "request": {
+        "method": "GET",
+        "url": { "raw": "{{baseUrl}}/api/health", "host": ["{{baseUrl}}"], "path": ["api", "health"] }
+      }
+    },
+    {
+      "name": "Disease - Predict",
+      "request": {
+        "method": "POST",
+        "url": { "raw": "{{baseUrl}}/api/disease/predict", "host": ["{{baseUrl}}"], "path": ["api", "disease", "predict"] },
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            { "key": "file", "type": "file", "src": [] },
+            { "key": "model", "value": "", "type": "text", "description": "optional: custom | efficientnet | resnet | vgg16" }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Disease - List Models",
+      "request": {
+        "method": "GET",
+        "url": { "raw": "{{baseUrl}}/api/disease/models", "host": ["{{baseUrl}}"], "path": ["api", "disease", "models"] }
+      }
+    },
+    {
+      "name": "Yield - Predict",
+      "request": {
+        "method": "POST",
+        "url": { "raw": "{{baseUrl}}/api/yield/predict", "host": ["{{baseUrl}}"], "path": ["api", "yield", "predict"] },
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"crop\": \"Rice\",\n  \"state\": \"Kerala\",\n  \"season\": \"Kharif\",\n  \"annual_rainfall\": 3000.0,\n  \"area\": 1000.0,\n  \"fertilizer\": 150.0,\n  \"pesticide\": 5.0,\n  \"year\": 2020,\n  \"model\": \"xgb_full\"\n}"
+        }
+      }
+    },
+    {
+      "name": "Yield - List Models",
+      "request": {
+        "method": "GET",
+        "url": { "raw": "{{baseUrl}}/api/yield/models", "host": ["{{baseUrl}}"], "path": ["api", "yield", "models"] }
+      }
+    },
+    {
+      "name": "Advisor - Recommend",
+      "request": {
+        "method": "POST",
+        "url": { "raw": "{{baseUrl}}/api/advisor/recommend", "host": ["{{baseUrl}}"], "path": ["api", "advisor", "recommend"] },
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"state\": \"Maharashtra\",\n  \"district\": \"Pune\",\n  \"soil_type\": \"Black\",\n  \"ph\": 6.2,\n  \"organic_carbon\": 0.45,\n  \"nitrogen\": 250.0,\n  \"phosphorus\": 8.0,\n  \"potassium\": 95.0,\n  \"sulphur\": 12.0,\n  \"zinc\": 0.8,\n  \"boron\": 0.4,\n  \"iron\": 5.0,\n  \"manganese\": 3.0,\n  \"copper\": 0.5,\n  \"rainfall\": 800.0,\n  \"temperature\": 28.0,\n  \"generate_llm\": false\n}"
+        }
+      }
+    },
+    {
+      "name": "Advisor - List Languages",
+      "request": {
+        "method": "GET",
+        "url": { "raw": "{{baseUrl}}/api/advisor/languages", "host": ["{{baseUrl}}"], "path": ["api", "advisor", "languages"] }
+      }
+    },
+    {
+      "name": "History",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/api/history?page=1&page_size=20",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "history"],
+          "query": [
+            { "key": "module", "value": "", "disabled": true },
+            { "key": "page", "value": "1" },
+            { "key": "page_size", "value": "20" }
+          ]
+        }
+      }
+    }
+  ]
+}
