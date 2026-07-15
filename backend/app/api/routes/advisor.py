@@ -5,6 +5,7 @@ from __future__ import annotations
 from fastapi import APIRouter, Depends, HTTPException
 
 from app.api.deps import get_advisor_service
+from app.integrations.llm.base import LLMProviderError
 from app.schemas import AdvisorLanguagesResponse, AdvisorRecommendRequest, AdvisorRecommendResponse
 from app.services.advisor_service import AdvisorService
 
@@ -26,7 +27,7 @@ async def recommend(
         )
     except (KeyError, ValueError) as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
-    except NotImplementedError as exc:
+    except (NotImplementedError, LLMProviderError) as exc:
         raise HTTPException(status_code=503, detail=f"LLM provider unavailable: {exc}") from exc
 
     return AdvisorRecommendResponse.model_validate(payload)
