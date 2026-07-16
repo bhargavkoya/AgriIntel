@@ -1,0 +1,213 @@
+{
+  "items": [
+    {
+      "id": 9,
+      "module": "advisor",
+      "model_name": "rf_classifier",
+      "timestamp": "2026-07-15T19:06:27.882083",
+      "request_json": {
+        "state": "Andhra Pradesh",
+        "district": "District_21",
+        "soil_type": "Red",
+        "ph": 8.24639207876577,
+        "organic_carbon": 1.05598977602896,
+        "nitrogen": 101.790024578069,
+        "phosphorus": 42.441540915795,
+        "potassium": 119.570504777463,
+        "sulphur": 7.17486839169175,
+        "zinc": 0.335251451498475,
+        "boron": 1.45637459132825,
+        "iron": 27.0548641924732,
+        "manganese": 32.2932053285055,
+        "copper": 0.340823000608295,
+        "rainfall": 1079.31722416036,
+        "temperature": 15.00545889112,
+        "generate_llm": true
+      },
+      "response_json": {
+        "layer1": {
+          "nutrient_statuses": {
+            "ph": {
+              "value": 8.24639207876577,
+              "status": "Alkaline",
+              "recommendation": "Apply gypsum at 500 kg/ha or incorporate sulfur to lower pH. Avoid calcium-based fertilizers."
+            },
+            "organic_carbon": {
+              "value": 1.05598977602896,
+              "status": "Excessive",
+              "recommendation": null
+            },
+            "nitrogen": {
+              "value": 101.790024578069,
+              "status": "Deficient",
+              "recommendation": "Apply Urea at 120 kg/ha in split doses — half at sowing, half 30 days after germination."
+            },
+            "phosphorus": {
+              "value": 42.441540915795,
+              "status": "Excessive",
+              "recommendation": "Phosphorus is excessive. Skip phosphate fertilizer this season."
+            },
+            "potassium": {
+              "value": 119.570504777463,
+              "status": "Sufficient",
+              "recommendation": "Potassium is adequate. Apply maintenance dose of MOP 30 kg/ha."
+            },
+            "sulphur": {
+              "value": 7.17486839169175,
+              "status": "Deficient",
+              "recommendation": "Apply gypsum at 200 kg/ha or elemental sulfur at 20 kg/ha before sowing."
+            },
+            "zinc": {
+              "value": 0.335251451498475,
+              "status": "Deficient",
+              "recommendation": "Apply Zinc Sulphate at 25 kg/ha as soil application or 0.5% foliar spray."
+            },
+            "boron": {
+              "value": 1.45637459132825,
+              "status": "Sufficient",
+              "recommendation": "Boron is adequate. No supplementation needed."
+            },
+            "iron": {
+              "value": 27.0548641924732,
+              "status": "Sufficient",
+              "recommendation": "Iron is adequate. No supplementation needed."
+            },
+            "manganese": {
+              "value": 32.2932053285055,
+              "status": "Sufficient",
+              "recommendation": "Manganese is adequate. No supplementation needed."
+            },
+            "copper": {
+              "value": 0.340823000608295,
+              "status": "Sufficient",
+              "recommendation": "Copper is adequate. No supplementation needed."
+            }
+          },
+          "overall_label": "Poor",
+          "problem_count": 6
+        },
+        "layer2": {
+          "prediction": "Poor",
+          "confidence": 0.875,
+          "class_probabilities": {
+            "Poor": 0.875,
+            "Moderate": 0.125,
+            "Good": 0
+          }
+        },
+        "layer3": {
+          "advisories": {
+            "English": "You are an expert agricultural advisor for Indian farmers.\n\nBased on the soil health analysis below, write a clear, practical advisory.\n\nSOIL HEALTH DATA:\n- Farmer      : \n- State       : Andhra Pradesh\n- Soil Type   : Red\n- Rainfall    : \n- Temperature : \n- Overall Soil Health (ML): Poor\n- Confidence  : \n\nNUTRIENT ANALYSIS:\n- Ph: 8.24639207876577  | Alkaline | Apply gypsum at 500 kg/ha or incorporate sulfur to lower pH. Avoid calcium-based fertilizers.\n- Organic Carbon: 1.05598977602896  | Excessive | No corrective action needed.\n- Nitrogen: 101.790024578069  | Deficient | Apply Urea at 120 kg/ha in split doses — half at sowing, half 30 days after germination.\n- Phosphorus: 42.441540915795  | Excessive | Phosphorus is excessive. Skip phosphate fertilizer this season.\n- Potassium: 119.570504777463  | Sufficient | Potassium is adequate. Apply maintenance dose of MOP 30 kg/ha.\n- Sulphur: 7.17486839169175  | Deficient | Apply gypsum at 200 kg/ha or elemental sulfur at 20 kg/ha before sowing.\n- Zinc: 0.335251451498475  | Deficient | Apply Zinc Sulphate at 25 kg/ha as soil application or 0.5% foliar spray.\n- Boron: 1.45637459132825  | Sufficient | Boron is adequate. No supplementation needed.\n- Iron: 27.0548641924732  | Sufficient | Iron is adequate. No supplementation needed.\n- Manganese: 32.2932053285055  | Sufficient | Manganese is adequate. No supplementation needed.\n",
+            "Hindi": "आप भारतीय किसानों के लिए एक विशेषज्ञ कृषि सलाहकार हैं।\n\nनीचे दिए गए मृदा स्वास्थ्य विश्लेषण के आधार पर एक स्पष्ट, व्यावहारिक सलाह लिखें।\n\nमृदा स्वास्थ्य डेटा:\n- किसान : \n- राज्य: आंध्र प्रदेश\n- मिट्टी का प्रकार : लाल\n- वर्षा : \n- तापमान : \n- समग्र मृदा स्वास्थ्य (एमएल): खराब\n- आत्मविश्वास : \n\nपोषक तत्व विश्लेषण:\n- फ़ोन: 8.24639207876577 | क्षारीय | पीएच कम करने के लिए 500 किग्रा/हेक्टेयर जिप्सम लगाएं या सल्फर मिलाएं। कैल्शियम आधारित उर्वरकों से बचें।\n- ऑर्गेनिक कार्बन: 1.05598977602896 | अत्यधिक | किसी सुधारात्मक कार्रवाई की आवश्यकता नहीं है.\n- नाइट्रोजन: 101.790024578069 | कमी | यूरिया को 120 किग्रा/हेक्टेयर की दर से विभाजित मात्रा में डालें - आधी बुआई के समय, आधी अंकुरण के 30 दिन बाद।\n- फास्फोरस: 42.441540915795 | अत्यधिक | फॉस्फोरस अत्यधिक होता है. इस मौसम में फॉस्फेट उर्वरक छोड़ें।\n- पोटैशियम: 119.570504777463 | पर्याप्त | पोटैशियम पर्याप्त है. एमओपी 30 किग्रा/हेक्टेयर की रखरखाव खुराक लागू करें।\n- सल्फर: 7.17486839169175 | कमी | बुआई से पहले जिप्सम 200 किग्रा/हेक्टेयर या एलिमेंटल सल्फर 20 किग्रा/हेक्टेयर डालें।\n- जिंक: 0.335251451498475 | कमी | जिंक सल्फेट 25 किग्रा/हेक्टेयर मिट्टी में डालें या 0.5% पत्ते पर स्प्रे करें।\n- बोरोन: 1.45637459132825 | पर्याप्त | बोरोन पर्याप्त है. किसी अनुपूरण की आवश्यकता नहीं.\n- आयरन: 27.0548641924732 | पर्याप्त | आयरन पर्याप्त है. किसी अनुपूरण की आवश्यकता नहीं.\n- मैंगनीज: 32.2932053285055 | पर्याप्त | मैंगनीज पर्याप्त है. किसी अनुपूरण की आवश्यकता नहीं.",
+            "Telugu": "మీరు భారతీయ రైతులకు నిపుణులైన వ్యవసాయ సలహాదారు.\n\nదిగువ నేల ఆరోగ్య విశ్లేషణ ఆధారంగా, స్పష్టమైన, ఆచరణాత్మక సలహా రాయండి.\n\nనేల ఆరోగ్య డేటా:\n- రైతు: \n- రాష్ట్రం: ఆంధ్రప్రదేశ్\n- నేల రకం: ఎరుపు\n- వర్షపాతం: \n- ఉష్ణోగ్రత: \n- మొత్తం నేల ఆరోగ్యం (ML): పేద\n- విశ్వాసం: \n\nపోషక విశ్లేషణ:\n- Ph: 8.24639207876577 | ఆల్కలీన్ | హెక్టారుకు 500 కిలోల వద్ద జిప్సం వేయండి లేదా pHని తగ్గించడానికి సల్ఫర్‌ను కలపండి. కాల్షియం ఆధారిత ఎరువులు మానుకోండి.\n- ఆర్గానిక్ కార్బన్: 1.05598977602896 | మితిమీరిన | దిద్దుబాటు చర్య అవసరం లేదు.\n- నైట్రోజన్: 101.790024578069 | లోపం | హెక్టారుకు 120 కిలోల చొప్పున యూరియాను విత్తిన తర్వాత సగం, అంకురోత్పత్తి తర్వాత సగం 30 రోజులకు విభజించాలి.\n- భాస్వరం: 42.441540915795 | మితిమీరిన | భాస్వరం అధికంగా ఉంటుంది. ఈ సీజన్‌లో ఫాస్ఫేట్ ఎరువులను వదిలివేయండి.\n- పొటాషియం: 119.570504777463 | తగినంత | పొటాషియం సరిపోతుంది. MOP 30 kg/ha నిర్వహణ మోతాదును వర్తించండి.\n- సల్ఫర్: 7.17486839169175 | లోపం | విత్తనాలు విత్తే ముందు హెక్టారుకు 200 కిలోల జిప్సం లేదా 20 కిలోల ఎలిమెంటల్ సల్ఫర్‌ను వేయండి.\n- జింక్: 0.335251451498475 | లోపం | జింక్ సల్ఫేట్‌ను హెక్టారుకు 25 కిలోలు మట్టిలో లేదా 0.5% ఆకుల పిచికారీగా వేయండి.\n- బోరాన్: 1.45637459132825 | తగినంత | బోరాన్ సరిపోతుంది. అనుబంధం అవసరం లేదు.\n- ఇనుము: 27.0548641924732 | తగినంత | ఐరన్ సరిపోతుంది. అనుబంధం అవసరం లేదు.\n- మాంగనీస్: 32.2932053285055 | తగినంత | మాంగనీస్ సరిపోతుంది. అనుబంధం అవసరం లేదు."
+          }
+        },
+        "inference_time_ms": 9091
+      },
+      "latency_ms": 9091
+    },
+    {
+      "id": 3,
+      "module": "advisor",
+      "model_name": "rf_classifier",
+      "timestamp": "2026-07-15T16:25:23.884849",
+      "request_json": {
+        "state": "Maharashtra",
+        "district": "Pune",
+        "soil_type": "Black",
+        "ph": 6.2,
+        "organic_carbon": 0.45,
+        "nitrogen": 250,
+        "phosphorus": 8,
+        "potassium": 95,
+        "sulphur": 12,
+        "zinc": 0.8,
+        "boron": 0.4,
+        "iron": 5,
+        "manganese": 3,
+        "copper": 0.5,
+        "rainfall": 800,
+        "temperature": 28,
+        "generate_llm": false
+      },
+      "response_json": {
+        "layer1": {
+          "nutrient_statuses": {
+            "ph": {
+              "value": 6.2,
+              "status": "Acidic",
+              "recommendation": "Apply agricultural lime at 200–400 kg/ha before sowing to raise pH to optimal 6.5–7.5 range."
+            },
+            "organic_carbon": {
+              "value": 0.45,
+              "status": "Deficient",
+              "recommendation": "Apply farmyard manure (FYM) at 5–10 tonnes/ha or compost to improve soil organic matter."
+            },
+            "nitrogen": {
+              "value": 250,
+              "status": "Deficient",
+              "recommendation": "Apply Urea at 120 kg/ha in split doses — half at sowing, half 30 days after germination."
+            },
+            "phosphorus": {
+              "value": 8,
+              "status": "Deficient",
+              "recommendation": "Apply Single Super Phosphate (SSP) at 150 kg/ha or DAP at 60 kg/ha at sowing."
+            },
+            "potassium": {
+              "value": 95,
+              "status": "Deficient",
+              "recommendation": "Apply Muriate of Potash (MOP) at 60 kg/ha or SOP at 50 kg/ha at sowing."
+            },
+            "sulphur": {
+              "value": 12,
+              "status": "Sufficient",
+              "recommendation": "Sulphur is adequate. No supplementation needed."
+            },
+            "zinc": {
+              "value": 0.8,
+              "status": "Sufficient",
+              "recommendation": "Zinc is adequate. No supplementation needed."
+            },
+            "boron": {
+              "value": 0.4,
+              "status": "Deficient",
+              "recommendation": "Apply Borax at 1–2 kg/ha as soil application or 0.2% Boric acid as foliar spray."
+            },
+            "iron": {
+              "value": 5,
+              "status": "Sufficient",
+              "recommendation": "Iron is adequate. No supplementation needed."
+            },
+            "manganese": {
+              "value": 3,
+              "status": "Sufficient",
+              "recommendation": "Manganese is adequate. No supplementation needed."
+            },
+            "copper": {
+              "value": 0.5,
+              "status": "Sufficient",
+              "recommendation": "Copper is adequate. No supplementation needed."
+            }
+          },
+          "overall_label": "Poor",
+          "problem_count": 6
+        },
+        "layer2": {
+          "prediction": "Moderate",
+          "confidence": 0.555,
+          "class_probabilities": {
+            "Poor": 0.43,
+            "Moderate": 0.555,
+            "Good": 0.015
+          }
+        },
+        "layer3": null,
+        "inference_time_ms": 57
+      },
+      "latency_ms": 57
+    }
+  ],
+  "total": 2,
+  "page": 1,
+  "page_size": 20
+}
