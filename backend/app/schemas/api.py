@@ -19,8 +19,8 @@ class HealthResponse(BaseModel):
 
 
 class ErrorResponse(BaseModel):
-    error: str
     detail: str
+    error_code: str
 
 
 class DiseasePredictionSummary(BaseModel):
