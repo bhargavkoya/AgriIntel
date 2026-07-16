@@ -60,6 +60,13 @@ def test_prediction_repository_create_and_list(db_session_factory) -> None:
     assert paged["total"] == 2
     assert len(paged["items"]) == 1
 
+    found = asyncio.run(repository.get_by_id(first_id))
+    assert found is not None
+    assert found["module"] == "disease"
+    assert found["model_name"] == "efficientnet"
+
+    assert asyncio.run(repository.get_by_id(999)) is None
+
 
 def test_file_repository_save_and_get(tmp_path, db_session_factory) -> None:
     repository = FileRepository(

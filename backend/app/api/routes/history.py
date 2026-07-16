@@ -2,11 +2,11 @@
 
 from __future__ import annotations
 
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, HTTPException, Query
 
 from app.api.deps import get_prediction_repository
 from app.repositories.prediction_repository import PredictionRepository
-from app.schemas import HistoryListResponse
+from app.schemas import HistoryItem, HistoryListResponse
 
 router = APIRouter(tags=["history"])
 
@@ -20,3 +20,14 @@ async def get_history(
 ) -> HistoryListResponse:
     payload = await repository.list(module=module, page=page, page_size=page_size)
     return HistoryListResponse.model_validate(payload)
+
+
+@router.get("/history/{item_id}", response_model=HistoryItem)
+async def get_history_item(
+    item_id: int,
+    repository: PredictionRepository = Depends(get_prediction_repository),
+) -> HistoryItem:
+    payload = await repository.get_by_id(item_id)
+    if payload is None:
+        raise HTTPException(status_code=404, detail=f"History item {item_id} not found")
+    return HistoryItem.model_validate(payload)
