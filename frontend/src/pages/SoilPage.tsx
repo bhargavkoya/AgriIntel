@@ -1,5 +1,6 @@
 import { useState, type ReactNode } from 'react';
 import { motion } from 'framer-motion';
+import { toast } from 'sonner';
 import { Controller, useForm } from 'react-hook-form';
 import PageHeader from '@/components/PageHeader';
 import PageIntroBanner from '@/components/PageIntroBanner';
@@ -18,6 +19,7 @@ import { NUTRIENT_STATUS_TONE } from '@/lib/nutrientStatus';
 import { STATES, SOIL_TYPES, CROPS } from '@/mocks/formOptions';
 import { NUTRIENT_CONFIG } from '@/mocks/soilMock';
 import { getSoilAdvice } from '@/services/soil';
+import { getErrorMessage } from '@/lib/apiError';
 import type { AdvisoryLanguage, SoilAdvisoryRequest, SoilAdvisoryResponse } from '@/types/soil';
 
 interface FormValues {
@@ -92,9 +94,14 @@ function SoilPage() {
       temperature: Number(values.temperature),
       generate_llm: true,
     };
-    const res = await getSoilAdvice(request);
-    setResult(res);
-    setLoading(false);
+    try {
+      const res = await getSoilAdvice(request);
+      setResult(res);
+    } catch (err) {
+      toast.error(getErrorMessage(err));
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (

@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
+import { toast } from 'sonner';
 import { Camera, RotateCcw, Upload } from 'lucide-react';
 import PageHeader from '@/components/PageHeader';
 import PageIntroBanner from '@/components/PageIntroBanner';
@@ -12,6 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/lib/utils';
 import { getDiseaseModels, predictDisease } from '@/services/disease';
+import { getErrorMessage } from '@/lib/apiError';
 import { DISEASE_MODEL_LABELS, DISEASE_TREATMENT } from '@/mocks/diseaseMock';
 import type { DiseaseModel, DiseasePredictionResponse } from '@/types/disease';
 
@@ -28,10 +30,12 @@ function DiseasePage() {
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    getDiseaseModels().then((res) => {
-      setModels(res.models);
-      setSelectedModel(res.active_model);
-    });
+    getDiseaseModels()
+      .then((res) => {
+        setModels(res.models);
+        setSelectedModel(res.active_model);
+      })
+      .catch((err) => toast.error(getErrorMessage(err)));
   }, []);
 
   function handleFile(selected: File) {
@@ -51,9 +55,14 @@ function DiseasePage() {
   async function handleCheck() {
     if (!file) return;
     setStatus('loading');
-    const res = await predictDisease(file, selectedModel);
-    setResult(res);
-    setStatus('done');
+    try {
+      const res = await predictDisease(file, selectedModel);
+      setResult(res);
+      setStatus('done');
+    } catch (err) {
+      toast.error(getErrorMessage(err));
+      setStatus('ready');
+    }
   }
 
   function handleReset() {

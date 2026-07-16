@@ -1,6 +1,7 @@
 import { Outlet } from 'react-router-dom';
 import AppHeader from '../components/AppHeader';
 import AppFooter from '../components/AppFooter';
+import { Toaster } from '../components/ui/sonner';
 
 function MainLayout() {
   return (
@@ -10,6 +11,7 @@ function MainLayout() {
         <Outlet />
       </main>
       <AppFooter />
+      <Toaster />
     </div>
   );
 }
