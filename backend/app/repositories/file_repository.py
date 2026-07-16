@@ -28,7 +28,8 @@ class FileRepository:
         upload_dir = self._settings.upload_path
         upload_dir.mkdir(parents=True, exist_ok=True)
 
-        destination = upload_dir / f"{module}_{filename}"
+        safe_filename = Path(filename).name or "upload"
+        destination = upload_dir / f"{module}_{safe_filename}"
         destination.write_bytes(content)
 
         with self._session_factory() as session:

@@ -162,8 +162,12 @@ class DiseaseService:
             "inference_time_ms": inference_time_ms,
         }
 
+        image_url = None
         try:
-            await self._file_repository.save(filename=filename or "upload", content=image_bytes, module="disease")
+            saved_path = await self._file_repository.save(
+                filename=filename or "upload", content=image_bytes, module="disease"
+            )
+            image_url = f"/api/uploads/{Path(saved_path).name}"
         except Exception:  # noqa: BLE001 - best-effort side effect, never fails the request
             logger.exception("Failed to persist uploaded disease image")
 
@@ -171,7 +175,7 @@ class DiseaseService:
             self._prediction_repository,
             module="disease",
             model_name=payload["model_used"],
-            request_json={"filename": filename, "model": model_name},
+            request_json={"filename": filename, "model": model_name, "image_url": image_url},
             response_json=payload,
             latency_ms=inference_time_ms,
         )

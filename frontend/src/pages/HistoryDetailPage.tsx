@@ -76,6 +76,7 @@ function HistoryDetailPage() {
 
 function DiseaseDetail({ item }: { item: HistoryItem }) {
   const response = item.response_json as unknown as DiseasePredictionResponse;
+  const request = item.request_json as unknown as { image_url?: string | null };
   const treatment = DISEASE_TREATMENT[response.prediction.class_name];
   const isHealthy = response.prediction.class_name === 'Healthy';
 
@@ -83,6 +84,13 @@ function DiseaseDetail({ item }: { item: HistoryItem }) {
     <Card>
       <CardContent className="flex flex-col gap-4">
         <ResultIntro>What we found in your photo</ResultIntro>
+        {request.image_url && (
+          <img
+            src={request.image_url}
+            alt="Uploaded leaf"
+            className="max-h-56 self-start rounded-md border border-border object-contain"
+          />
+        )}
         <div className="flex flex-wrap items-center justify-between gap-2">
           <p className="font-heading text-xl text-foreground">
             {isHealthy ? 'Good news — your plant looked healthy' : `Looked like: ${response.prediction.class_name}`}
