@@ -11,7 +11,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { CROPS, STATES, SEASONS } from '@/mocks/formOptions';
+import { YIELD_CROPS, YIELD_STATES, SEASONS } from '@/mocks/formOptions';
 import { YIELD_MODEL_LABELS } from '@/mocks/yieldMock';
 import { getYieldModels, predictYield } from '@/services/yield';
 import { getErrorMessage } from '@/lib/apiError';
@@ -46,9 +46,9 @@ function YieldPage() {
   } = useForm<FormValues>({
     defaultValues: {
       model: '',
-      crop: CROPS[0],
-      state: STATES[0],
-      season: SEASONS[0],
+      crop: 'Rice',
+      state: 'Andhra Pradesh',
+      season: 'Kharif',
       annual_rainfall: '1180',
       area: '2.4',
       fertilizer: '142',
@@ -126,24 +126,16 @@ function YieldPage() {
 
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
               <Field label="Crop">
-                <Controller
-                  name="crop"
-                  control={control}
-                  render={({ field }) => (
-                    <Select value={field.value} onValueChange={field.onChange}>
-                      <SelectTrigger className="w-full">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {CROPS.map((c) => (
-                          <SelectItem key={c} value={c}>
-                            {c}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  )}
+                <Input
+                  list="yield-crop-options"
+                  placeholder="e.g. Rice"
+                  {...register('crop', { required: true })}
                 />
+                <datalist id="yield-crop-options">
+                  {YIELD_CROPS.map((c) => (
+                    <option key={c} value={c} />
+                  ))}
+                </datalist>
               </Field>
               <Field label="State">
                 <Controller
@@ -155,7 +147,7 @@ function YieldPage() {
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        {STATES.map((s) => (
+                        {YIELD_STATES.map((s) => (
                           <SelectItem key={s} value={s}>
                             {s}
                           </SelectItem>
@@ -192,17 +184,17 @@ function YieldPage() {
                 <Input type="number" {...register('year', { required: true })} />
               </Field>
               <Field label="Rainfall (mm)">
-                <Input type="number" {...register('annual_rainfall', { required: true })} />
+                <Input type="number" step="any" {...register('annual_rainfall', { required: true })} />
               </Field>
               <Field label="Area (ha)">
-                <Input type="number" step="0.01" {...register('area', { required: true })} />
+                <Input type="number" step="any" {...register('area', { required: true })} />
               </Field>
               <Field label="Fertiliser (kg/ha)">
-                <Input type="number" step="0.01" {...register('fertilizer', { required: true })} />
+                <Input type="number" step="any" {...register('fertilizer', { required: true })} />
               </Field>
             </div>
             <Field label="Pesticide (kg/ha)">
-              <Input type="number" step="0.01" className="max-w-40" {...register('pesticide', { required: true })} />
+              <Input type="number" step="any" className="max-w-40" {...register('pesticide', { required: true })} />
             </Field>
 
             {Object.keys(errors).length > 0 && (

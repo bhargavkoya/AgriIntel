@@ -16,7 +16,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
 import { NUTRIENT_STATUS_TONE } from '@/lib/nutrientStatus';
-import { STATES, SOIL_TYPES, CROPS } from '@/mocks/formOptions';
+import { SOIL_STATES, SOIL_TYPES } from '@/mocks/formOptions';
 import { NUTRIENT_CONFIG } from '@/mocks/soilMock';
 import { getSoilAdvice } from '@/services/soil';
 import { getErrorMessage } from '@/lib/apiError';
@@ -25,7 +25,6 @@ import type { AdvisoryLanguage, SoilAdvisoryRequest, SoilAdvisoryResponse } from
 interface FormValues {
   state: string;
   soil_type: string;
-  crop: string;
   rainfall: string;
   temperature: string;
   ph: string;
@@ -65,9 +64,8 @@ function SoilPage() {
 
   const { control, register, handleSubmit } = useForm<FormValues>({
     defaultValues: {
-      state: STATES[0],
+      state: SOIL_STATES[0],
       soil_type: SOIL_TYPES[0],
-      crop: CROPS[0],
       rainfall: '800',
       temperature: '28',
       ...NUTRIENT_DEFAULTS,
@@ -76,20 +74,21 @@ function SoilPage() {
 
   async function onSubmit(values: FormValues) {
     setLoading(true);
+    const round2 = (value: string) => Math.round(Number(value) * 100) / 100;
     const request: SoilAdvisoryRequest = {
       state: values.state,
       soil_type: values.soil_type,
-      ph: Number(values.ph),
-      organic_carbon: Number(values.organic_carbon),
-      nitrogen: Number(values.nitrogen),
-      phosphorus: Number(values.phosphorus),
-      potassium: Number(values.potassium),
-      sulphur: Number(values.sulphur),
-      zinc: Number(values.zinc),
-      boron: Number(values.boron),
-      iron: Number(values.iron),
-      manganese: Number(values.manganese),
-      copper: Number(values.copper),
+      ph: round2(values.ph),
+      organic_carbon: round2(values.organic_carbon),
+      nitrogen: round2(values.nitrogen),
+      phosphorus: round2(values.phosphorus),
+      potassium: round2(values.potassium),
+      sulphur: round2(values.sulphur),
+      zinc: round2(values.zinc),
+      boron: round2(values.boron),
+      iron: round2(values.iron),
+      manganese: round2(values.manganese),
+      copper: round2(values.copper),
       rainfall: Number(values.rainfall),
       temperature: Number(values.temperature),
       generate_llm: true,
@@ -117,7 +116,7 @@ function SoilPage() {
         {step === 'info' && (
           <Card>
             <CardContent className="flex flex-col gap-4">
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <Field label="State">
                   <Controller
                     name="state"
@@ -128,7 +127,7 @@ function SoilPage() {
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                          {STATES.map((s) => (
+                          {SOIL_STATES.map((s) => (
                             <SelectItem key={s} value={s}>
                               {s}
                             </SelectItem>
@@ -158,33 +157,13 @@ function SoilPage() {
                     )}
                   />
                 </Field>
-                <Field label="Crop">
-                  <Controller
-                    name="crop"
-                    control={control}
-                    render={({ field }) => (
-                      <Select value={field.value} onValueChange={field.onChange}>
-                        <SelectTrigger className="w-full">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {CROPS.map((c) => (
-                            <SelectItem key={c} value={c}>
-                              {c}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    )}
-                  />
-                </Field>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <Field label="Rainfall (mm)">
-                  <Input type="number" {...register('rainfall')} />
+                  <Input type="number" step="any" {...register('rainfall')} />
                 </Field>
                 <Field label="Temperature (°C)">
-                  <Input type="number" {...register('temperature')} />
+                  <Input type="number" step="any" {...register('temperature')} />
                 </Field>
               </div>
               <Button type="button" size="lg" onClick={() => setStep('nutrients')}>
@@ -200,7 +179,7 @@ function SoilPage() {
               <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
                 {NUTRIENT_CONFIG.map((n) => (
                   <Field key={n.key} label={`${n.label}${n.unit ? ` (${n.unit})` : ''}`}>
-                    <Input type="number" step="0.01" {...register(n.key as keyof FormValues, { required: true })} />
+                    <Input type="number" step="any" {...register(n.key as keyof FormValues, { required: true })} />
                   </Field>
                 ))}
               </div>
