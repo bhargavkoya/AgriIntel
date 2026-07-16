@@ -3,6 +3,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from app.api.errors import register_exception_handlers
 from app.api.routes import advisor, disease, health, history, yield_prediction
 from app.core.config import get_settings
 from app.core.lifespan import lifespan
@@ -25,6 +26,8 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+register_exception_handlers(app)
 
 app.include_router(health.router, prefix="/api", tags=["health"])
 app.include_router(disease.router, prefix="/api")

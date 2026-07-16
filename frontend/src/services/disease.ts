@@ -1,16 +1,18 @@
-import { delay } from '@/utils';
-import { DISEASE_MODELS, pickDiseaseMock } from '@/mocks/diseaseMock';
+import apiClient from '@/services/api';
 import type { DiseaseModelsResponse, DiseasePredictionResponse } from '@/types/disease';
 
 export async function getDiseaseModels(): Promise<DiseaseModelsResponse> {
-  await delay(200);
-  return DISEASE_MODELS;
+  const response = await apiClient.get<DiseaseModelsResponse>('/disease/models');
+  return response.data;
 }
 
-export async function predictDisease(
-  _file: File,
-  model: string
-): Promise<DiseasePredictionResponse> {
-  await delay(1200);
-  return pickDiseaseMock(model);
+export async function predictDisease(file: File, model: string): Promise<DiseasePredictionResponse> {
+  const formData = new FormData();
+  formData.append('file', file);
+  if (model) formData.append('model', model);
+
+  const response = await apiClient.post<DiseasePredictionResponse>('/disease/predict', formData, {
+    headers: { 'Content-Type': undefined },
+  });
+  return response.data;
 }

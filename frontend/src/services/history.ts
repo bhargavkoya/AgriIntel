@@ -1,13 +1,24 @@
-import { delay } from '@/utils';
-import { findHistoryItem, paginateHistory } from '@/mocks/historyMock';
-import type { HistoryItem, HistoryResponse } from '@/types/history';
+import { isAxiosError } from 'axios';
+import apiClient from '@/services/api';
+import type { HistoryItem, HistoryModule, HistoryResponse } from '@/types/history';
 
-export async function getHistory(page = 1, pageSize = 20): Promise<HistoryResponse> {
-  await delay(400);
-  return paginateHistory(page, pageSize);
+export async function getHistory(
+  page = 1,
+  pageSize = 20,
+  module?: HistoryModule
+): Promise<HistoryResponse> {
+  const response = await apiClient.get<HistoryResponse>('/history', {
+    params: { page, page_size: pageSize, module },
+  });
+  return response.data;
 }
 
 export async function getHistoryItem(id: number): Promise<HistoryItem | null> {
-  await delay(300);
-  return findHistoryItem(id);
+  try {
+    const response = await apiClient.get<HistoryItem>(`/history/${id}`);
+    return response.data;
+  } catch (err) {
+    if (isAxiosError(err) && err.response?.status === 404) return null;
+    throw err;
+  }
 }

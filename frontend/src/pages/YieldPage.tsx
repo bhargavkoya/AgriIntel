@@ -1,5 +1,6 @@
 import { useEffect, useState, type ReactNode } from 'react';
 import { motion } from 'framer-motion';
+import { toast } from 'sonner';
 import { Controller, useForm } from 'react-hook-form';
 import PageHeader from '@/components/PageHeader';
 import PageIntroBanner from '@/components/PageIntroBanner';
@@ -13,6 +14,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { CROPS, STATES, SEASONS } from '@/mocks/formOptions';
 import { YIELD_MODEL_LABELS } from '@/mocks/yieldMock';
 import { getYieldModels, predictYield } from '@/services/yield';
+import { getErrorMessage } from '@/lib/apiError';
 import { useCountUp } from '@/lib/useCountUp';
 import type { YieldModel, YieldPredictRequest, YieldPredictionResponse } from '@/types/yield';
 
@@ -56,10 +58,12 @@ function YieldPage() {
   });
 
   useEffect(() => {
-    getYieldModels().then((res) => {
-      setModels(res.models);
-      setValue('model', res.default_model);
-    });
+    getYieldModels()
+      .then((res) => {
+        setModels(res.models);
+        setValue('model', res.default_model);
+      })
+      .catch((err) => toast.error(getErrorMessage(err)));
   }, [setValue]);
 
   async function onSubmit(values: FormValues) {
@@ -75,9 +79,14 @@ function YieldPage() {
       year: Number(values.year),
       model: values.model,
     };
-    const res = await predictYield(request);
-    setResult(res);
-    setLoading(false);
+    try {
+      const res = await predictYield(request);
+      setResult(res);
+    } catch (err) {
+      toast.error(getErrorMessage(err));
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (

@@ -312,11 +312,19 @@ Retrieve paginated prediction history.
 }
 ```
 
+### `GET /api/history/{id}`
+
+Retrieve a single prediction history record.
+
+**Response 200:** same shape as one entry of `GET /api/history`'s `items` array.
+
+**Response 404:** no record with that id.
+
 ---
 
 ## Error Response Format
 
-All error responses follow a consistent structure:
+All error responses follow a consistent structure, produced by a global exception handler (`backend/app/api/errors.py`) — individual routes just raise `HTTPException(status_code=..., detail=...)` and the handler fills in `error_code`:
 
 ```json
 {
@@ -325,13 +333,13 @@ All error responses follow a consistent structure:
 }
 ```
 
-| HTTP Status | When |
-|-------------|------|
-| 400 | Bad request (invalid input, unknown category) |
-| 404 | Resource not found |
-| 422 | Pydantic validation failure |
-| 500 | Internal server error |
-| 503 | External service unavailable (LLM API) |
+| HTTP Status | `error_code` | When |
+|-------------|--------------|------|
+| 400 | `BAD_REQUEST` | Bad request (invalid input, unknown category) |
+| 404 | `NOT_FOUND` | Resource not found |
+| 422 | `VALIDATION_ERROR` | Pydantic validation failure |
+| 500 | `INTERNAL_ERROR` | Internal server error |
+| 503 | `SERVICE_UNAVAILABLE` | External service unavailable (LLM API, or model not loaded) |
 
 ---
 

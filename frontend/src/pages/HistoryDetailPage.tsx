@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { toast } from 'sonner';
 import PageHeader from '@/components/PageHeader';
 import ConfidenceBadge from '@/components/ConfidenceBadge';
 import ResultIntro from '@/components/ResultIntro';
@@ -12,6 +13,7 @@ import { cn } from '@/lib/utils';
 import { toRelativeTime } from '@/lib/relativeTime';
 import { NUTRIENT_STATUS_TONE } from '@/lib/nutrientStatus';
 import { getHistoryItem } from '@/services/history';
+import { getErrorMessage } from '@/lib/apiError';
 import { DISEASE_MODEL_LABELS, DISEASE_TREATMENT } from '@/mocks/diseaseMock';
 import { YIELD_MODEL_LABELS } from '@/mocks/yieldMock';
 import { NUTRIENT_CONFIG } from '@/mocks/soilMock';
@@ -34,7 +36,12 @@ function HistoryDetailPage() {
   useEffect(() => {
     if (!id) return;
     setItem(undefined);
-    getHistoryItem(Number(id)).then(setItem);
+    getHistoryItem(Number(id))
+      .then(setItem)
+      .catch((err) => {
+        toast.error(getErrorMessage(err));
+        setItem(null);
+      });
   }, [id]);
 
   if (item === undefined) {

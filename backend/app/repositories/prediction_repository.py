@@ -38,6 +38,23 @@ class PredictionRepository:
             session.refresh(record)
             return record.id
 
+    async def get_by_id(self, record_id: int) -> dict | None:
+        """Retrieve a single prediction record by id, or None if not found."""
+        with self._session_factory() as session:
+            record = session.get(PredictionHistory, record_id)
+            if record is None:
+                return None
+
+            return {
+                "id": record.id,
+                "module": record.module,
+                "model_name": record.model_name,
+                "timestamp": record.timestamp.isoformat(),
+                "request_json": record.request_json,
+                "response_json": record.response_json,
+                "latency_ms": record.latency_ms,
+            }
+
     async def list(
         self,
         module: str | None = None,
