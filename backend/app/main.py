@@ -2,6 +2,7 @@
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 
 from app.api.errors import register_exception_handlers
 from app.api.routes import advisor, disease, health, history, yield_prediction
@@ -28,6 +29,9 @@ app.add_middleware(
 )
 
 register_exception_handlers(app)
+
+settings.upload_path.mkdir(parents=True, exist_ok=True)
+app.mount("/api/uploads", StaticFiles(directory=str(settings.upload_path)), name="uploads")
 
 app.include_router(health.router, prefix="/api", tags=["health"])
 app.include_router(disease.router, prefix="/api")
