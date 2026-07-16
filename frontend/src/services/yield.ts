@@ -1,13 +1,13 @@
-import { delay } from '@/utils';
-import { YIELD_MODELS, mockYieldPredict } from '@/mocks/yieldMock';
+import apiClient from '@/services/api';
 import type { YieldModelsResponse, YieldPredictRequest, YieldPredictionResponse } from '@/types/yield';
 
 export async function getYieldModels(): Promise<YieldModelsResponse> {
-  await delay(200);
-  return YIELD_MODELS;
+  const response = await apiClient.get<YieldModelsResponse>('/yield/models');
+  return response.data;
 }
 
 export async function predictYield(input: YieldPredictRequest): Promise<YieldPredictionResponse> {
-  await delay(1000);
-  return mockYieldPredict(input);
+  const request = { ...input, model: input.model || undefined };
+  const response = await apiClient.post<YieldPredictionResponse>('/yield/predict', request);
+  return response.data;
 }
