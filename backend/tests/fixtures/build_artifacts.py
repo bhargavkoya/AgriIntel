@@ -110,7 +110,7 @@ def build_yield_artifacts(root: Path) -> None:
 
     model = XGBRegressor(n_estimators=5, max_depth=2)
     model.fit(transformed, target)
-    joblib.dump(model, root / "models" / "xgb_full.pkl")
+    model.save_model(str(root / "models" / "xgb_full.json"))
 
 
 def build_advisor_artifacts(root: Path) -> None:

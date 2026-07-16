@@ -1,0 +1,345 @@
+{
+  "items": [
+    {
+      "id": 17,
+      "module": "yield",
+      "model_name": "xgb_full",
+      "timestamp": "2026-07-15T23:41:18.344331",
+      "request_json": {
+        "crop": "Castor seed",
+        "state": "Nagaland",
+        "season": "Kharif",
+        "annual_rainfall": 1544.354545,
+        "area": 280,
+        "fertilizer": 167.519999999999,
+        "pesticide": 0.33,
+        "year": 2011,
+        "model": "xgb_full"
+      },
+      "response_json": {
+        "predicted_yield": 0.03177592054759225,
+        "unit": "tonnes/ha",
+        "model_used": "xgb_full",
+        "feature_set": "full",
+        "inference_time_ms": 48,
+        "feature_importance": null
+      },
+      "latency_ms": 48
+    },
+    {
+      "id": 16,
+      "module": "yield",
+      "model_name": "gb_full",
+      "timestamp": "2026-07-15T23:40:22.676070",
+      "request_json": {
+        "crop": "Wheat",
+        "state": "Bihar",
+        "season": "Rabi",
+        "annual_rainfall": 1247,
+        "area": 2181543,
+        "fertilizer": 102.130000004583,
+        "pesticide": 0.26,
+        "year": 2001,
+        "model": "gb_full"
+      },
+      "response_json": {
+        "predicted_yield": 2.0626411491404064,
+        "unit": "tonnes/ha",
+        "model_used": "gb_full",
+        "feature_set": "full",
+        "inference_time_ms": 103,
+        "feature_importance": null
+      },
+      "latency_ms": 103
+    },
+    {
+      "id": 15,
+      "module": "yield",
+      "model_name": "xgb_full",
+      "timestamp": "2026-07-15T23:37:55.322999",
+      "request_json": {
+        "crop": "Wheat",
+        "state": "Bihar",
+        "season": "Rabi",
+        "annual_rainfall": 1247,
+        "area": 2181543,
+        "fertilizer": 102.130000004583,
+        "pesticide": 0.26,
+        "year": 2001,
+        "model": "xgb_full"
+      },
+      "response_json": {
+        "predicted_yield": 0.8012766648531733,
+        "unit": "tonnes/ha",
+        "model_used": "xgb_full",
+        "feature_set": "full",
+        "inference_time_ms": 30,
+        "feature_importance": null
+      },
+      "latency_ms": 30
+    },
+    {
+      "id": 14,
+      "module": "yield",
+      "model_name": "xgb_full",
+      "timestamp": "2026-07-15T23:27:44.044537",
+      "request_json": {
+        "crop": "Castor seed",
+        "state": "Nagaland",
+        "season": "Kharif",
+        "annual_rainfall": 1544.354545,
+        "area": 280,
+        "fertilizer": 46905.6,
+        "pesticide": 92.4,
+        "year": 2011,
+        "model": "xgb_full"
+      },
+      "response_json": {
+        "predicted_yield": 0,
+        "unit": "tonnes/ha",
+        "model_used": "xgb_full",
+        "feature_set": "full",
+        "inference_time_ms": 64,
+        "feature_importance": null
+      },
+      "latency_ms": 64
+    },
+    {
+      "id": 13,
+      "module": "yield",
+      "model_name": "gb_full",
+      "timestamp": "2026-07-15T23:27:08.899042",
+      "request_json": {
+        "crop": "Castor seed",
+        "state": "Nagaland",
+        "season": "Kharif",
+        "annual_rainfall": 1544.354545,
+        "area": 280,
+        "fertilizer": 46905.6,
+        "pesticide": 92.4,
+        "year": 2011,
+        "model": "gb_full"
+      },
+      "response_json": {
+        "predicted_yield": 0.7168703762510247,
+        "unit": "tonnes/ha",
+        "model_used": "gb_full",
+        "feature_set": "full",
+        "inference_time_ms": 10031,
+        "feature_importance": null
+      },
+      "latency_ms": 10031
+    },
+    {
+      "id": 12,
+      "module": "yield",
+      "model_name": "xgb_full",
+      "timestamp": "2026-07-15T21:33:15.517758",
+      "request_json": {
+        "crop": "Castor seed",
+        "state": "Nagaland",
+        "season": "Kharif",
+        "annual_rainfall": 1544.354545,
+        "area": 280,
+        "fertilizer": 46905.6,
+        "pesticide": 92.4,
+        "year": 2011,
+        "model": "xgb_full"
+      },
+      "response_json": {
+        "predicted_yield": 0,
+        "unit": "tonnes/ha",
+        "model_used": "xgb_full",
+        "feature_set": "full",
+        "inference_time_ms": 240,
+        "feature_importance": null
+      },
+      "latency_ms": 240
+    },
+    {
+      "id": 11,
+      "module": "yield",
+      "model_name": "gb_full",
+      "timestamp": "2026-07-15T21:33:07.795620",
+      "request_json": {
+        "crop": "Castor seed",
+        "state": "Nagaland",
+        "season": "Kharif",
+        "annual_rainfall": 1544.354545,
+        "area": 280,
+        "fertilizer": 46905.6,
+        "pesticide": 92.4,
+        "year": 2011,
+        "model": "gb_full"
+      },
+      "response_json": {
+        "predicted_yield": 0.7168703762510247,
+        "unit": "tonnes/ha",
+        "model_used": "gb_full",
+        "feature_set": "full",
+        "inference_time_ms": 13921,
+        "feature_importance": null
+      },
+      "latency_ms": 13921
+    },
+    {
+      "id": 10,
+      "module": "yield",
+      "model_name": "gb_full",
+      "timestamp": "2026-07-15T19:50:57.394498",
+      "request_json": {
+        "crop": "Castor seed",
+        "state": "Nagaland",
+        "season": "Kharif",
+        "annual_rainfall": 1544.354545,
+        "area": 280,
+        "fertilizer": 46905.6,
+        "pesticide": 92.4,
+        "year": 2011,
+        "model": "gb_full"
+      },
+      "response_json": {
+        "predicted_yield": 0.7168703762510247,
+        "unit": "tonnes/ha",
+        "model_used": "gb_full",
+        "feature_set": "full",
+        "inference_time_ms": 15456,
+        "feature_importance": null
+      },
+      "latency_ms": 15456
+    },
+    {
+      "id": 8,
+      "module": "yield",
+      "model_name": "gb_full",
+      "timestamp": "2026-07-15T18:59:17.133728",
+      "request_json": {
+        "crop": "Castor seed",
+        "state": "Nagaland",
+        "season": "Kharif",
+        "annual_rainfall": 1544.354545,
+        "area": 280,
+        "fertilizer": 46905.6,
+        "pesticide": 92.4,
+        "year": 2011,
+        "model": "gb_full"
+      },
+      "response_json": {
+        "predicted_yield": 0.7168703762510247,
+        "unit": "tonnes/ha",
+        "model_used": "gb_full",
+        "feature_set": "full",
+        "inference_time_ms": 10503,
+        "feature_importance": null
+      },
+      "latency_ms": 10503
+    },
+    {
+      "id": 7,
+      "module": "yield",
+      "model_name": "rf_full",
+      "timestamp": "2026-07-15T18:58:27.353494",
+      "request_json": {
+        "crop": "Castor seed",
+        "state": "Nagaland",
+        "season": "Kharif",
+        "annual_rainfall": 1544.354545,
+        "area": 280,
+        "fertilizer": 46905.6,
+        "pesticide": 92.4,
+        "year": 2011,
+        "model": "rf_full"
+      },
+      "response_json": {
+        "predicted_yield": 0.7544972687015403,
+        "unit": "tonnes/ha",
+        "model_used": "rf_full",
+        "feature_set": "full",
+        "inference_time_ms": 239,
+        "feature_importance": null
+      },
+      "latency_ms": 239
+    },
+    {
+      "id": 6,
+      "module": "yield",
+      "model_name": "xgb_full",
+      "timestamp": "2026-07-15T18:58:04.062316",
+      "request_json": {
+        "crop": "Castor seed",
+        "state": "Nagaland",
+        "season": "Kharif",
+        "annual_rainfall": 1544.354545,
+        "area": 280,
+        "fertilizer": 46905.6,
+        "pesticide": 92.4,
+        "year": 2011,
+        "model": "xgb_full"
+      },
+      "response_json": {
+        "predicted_yield": 0,
+        "unit": "tonnes/ha",
+        "model_used": "xgb_full",
+        "feature_set": "full",
+        "inference_time_ms": 25,
+        "feature_importance": null
+      },
+      "latency_ms": 25
+    },
+    {
+      "id": 5,
+      "module": "yield",
+      "model_name": "xgb_full",
+      "timestamp": "2026-07-15T18:57:50.374254",
+      "request_json": {
+        "crop": "Castor seed",
+        "state": "Nagaland",
+        "season": "Kharif",
+        "annual_rainfall": 1544.354545,
+        "area": 280,
+        "fertilizer": 46905.6,
+        "pesticide": 92.4,
+        "year": 2011,
+        "model": "xgb_full"
+      },
+      "response_json": {
+        "predicted_yield": 0,
+        "unit": "tonnes/ha",
+        "model_used": "xgb_full",
+        "feature_set": "full",
+        "inference_time_ms": 136,
+        "feature_importance": null
+      },
+      "latency_ms": 136
+    },
+    {
+      "id": 2,
+      "module": "yield",
+      "model_name": "xgb_full",
+      "timestamp": "2026-07-15T16:25:23.800336",
+      "request_json": {
+        "crop": "Rice",
+        "state": "Kerala",
+        "season": "Kharif",
+        "annual_rainfall": 3000,
+        "area": 1000,
+        "fertilizer": 150,
+        "pesticide": 5,
+        "year": 2020,
+        "model": null
+      },
+      "response_json": {
+        "predicted_yield": 0.7618307024358433,
+        "unit": "tonnes/ha",
+        "model_used": "xgb_full",
+        "feature_set": "full",
+        "inference_time_ms": 164,
+        "feature_importance": null
+      },
+      "latency_ms": 164
+    }
+  ],
+  "total": 13,
+  "page": 1,
+  "page_size": 20
+}

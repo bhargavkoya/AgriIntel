@@ -9,9 +9,21 @@ httpx>=0.28.0
 pytest>=8.3.0
 
 # ML dependencies (sub-phase 3.2 — real inference)
+# scikit-learn is pinned to match the version the Colab notebooks pickled
+# rf_*/gb_* artifacts with — newer versions can't deserialize those pickles
+# (see docs/ARTIFACT_CONTRACTS.md). tf-keras provides the legacy Keras 2
+# loader some of the disease .keras exports also need.
+#
+# xgboost must match (or be newer than) the version used to write
+# xgb_full.json/xgb_min.json via save_model() in Colab — an older reader can
+# silently mis-apply newer fields (e.g. boost_from_average/base_score) rather
+# than erroring, producing systematically wrong predictions with no crash.
+# Check the "version" field in artifacts/yield/models/xgb_full.json and keep
+# this pin at or above it if the notebook's xgboost is ever upgraded.
 tensorflow>=2.18.0
-scikit-learn>=1.5.0
-xgboost>=2.1.0
+tf-keras>=2.18.0
+scikit-learn==1.6.1
+xgboost==3.3.0
 joblib>=1.4.0
 pandas>=2.2.0
 numpy>=2.1.0

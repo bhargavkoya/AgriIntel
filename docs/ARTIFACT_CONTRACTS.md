@@ -129,7 +129,7 @@ Exact field names and values depend on notebook output. `active_model` selects t
 }
 ```
 
-The backend maps `best_full_model` to `models/xgb_full.pkl` + `preprocessor_full.pkl`.
+The backend maps `best_full_model` to `models/xgb_full.json` + `preprocessor_full.pkl`.
 
 ### Preprocessor Files
 
@@ -142,12 +142,14 @@ The backend maps `best_full_model` to `models/xgb_full.pkl` + `preprocessor_full
 
 | File | Algorithm | Feature Set |
 |------|-----------|-------------|
-| `xgb_full.pkl` | XGBRegressor | Full |
-| `xgb_min.pkl` | XGBRegressor | Minimal |
+| `xgb_full.json` | XGBRegressor | Full |
+| `xgb_min.json` | XGBRegressor | Minimal |
 | `rf_full.pkl` | RandomForestRegressor | Full |
 | `rf_min.pkl` | RandomForestRegressor | Minimal |
 | `gb_full.pkl` | HistGradientBoostingRegressor | Full |
 | `gb_min.pkl` | HistGradientBoostingRegressor | Minimal |
+
+**Note on `xgb_full`/`xgb_min` format**: these must be exported via XGBoost's native `model.save_model("xgb_full.json")`, **not** `joblib.dump()`/pickle. XGBoost's `Booster` uses its own internal binary format that pickle captures byte-for-byte for the *exact* xgboost version that wrote it — loading that pickle with a different xgboost version can silently degrade prediction quality (confirmed: R² dropped from a documented 0.91 to 0.74 on real held-out data after a version-mismatched pickle load, with no error raised). The native `save_model()`/`load_model()` JSON/UBJSON format is version-portable *between compatible reader/writer versions*, but is not entirely immune to version drift either — confirmed: loading a Colab-written `xgb_full.json` (`"version": [3, 3, 0]`, using the newer `boost_from_average` auto-computed `base_score`) with an older installed `xgboost==2.1.4` reader silently mis-applied that base score and produced systematically underpredicted yields, again with no error raised. **The backend's installed `xgboost` version must be at or above the version that wrote the artifact JSON** (check the file's own `"version"` field) — `backend/requirements.txt` is currently pinned to `xgboost==3.3.0` to match. `rf_*`/`gb_*` are plain scikit-learn estimators and don't have either of these issues — `joblib.dump()`/`pickle` is fine for those (just keep the pickling scikit-learn version reasonably close to the loading one).
 
 ### Inference Contract
 

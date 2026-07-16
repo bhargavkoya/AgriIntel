@@ -35,6 +35,25 @@ def load_joblib(path: Path) -> Any:
     return joblib.load(path)
 
 
+def load_xgboost_model(path: Path) -> Any:
+    """Load an XGBRegressor saved via its native save_model() format.
+
+    Raw pickle/joblib dumps of a Booster are not guaranteed portable across
+    xgboost versions (unlike plain scikit-learn estimators); the native
+    JSON/UBJSON format from save_model()/load_model() is.
+    """
+    try:
+        from xgboost import XGBRegressor
+    except ImportError as exc:  # pragma: no cover - optional runtime dependency
+        raise ImportError(
+            "xgboost is required to load notebook-exported XGBoost models"
+        ) from exc
+
+    model = XGBRegressor()
+    model.load_model(str(path))
+    return model
+
+
 def load_keras_model(path: Path) -> Any:
     try:
         from tensorflow.keras.models import load_model
@@ -43,7 +62,17 @@ def load_keras_model(path: Path) -> Any:
             "tensorflow is required to load notebook-exported Keras models"
         ) from exc
 
-    return load_model(path, compile=False)
+    try:
+        return load_model(path, compile=False)
+    except Exception as native_error:
+        # Some exported models use the legacy tf_keras (Keras 2) format that
+        # Keras 3's native loader can't deserialize; fall back to it.
+        try:
+            from tf_keras.models import load_model as load_legacy_model
+        except ImportError:
+            raise native_error
+
+        return load_legacy_model(path, compile=False)
 
 
 def pretty_label(name: str) -> str:

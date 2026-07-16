@@ -7,16 +7,20 @@ from math import expm1
 from pathlib import Path
 from typing import Any, Mapping
 
-from ..common import load_joblib, read_json, resolve_artifact_dir
+from ..common import load_joblib, load_xgboost_model, read_json, resolve_artifact_dir
 
 MODEL_FILE_MAP = {
-    "xgb_full": ("models/xgb_full.pkl", "full"),
-    "xgb_min": ("models/xgb_min.pkl", "min"),
+    "xgb_full": ("models/xgb_full.json", "full"),
+    "xgb_min": ("models/xgb_min.json", "min"),
     "rf_full": ("models/rf_full.pkl", "full"),
     "rf_min": ("models/rf_min.pkl", "min"),
     "gb_full": ("models/gb_full.pkl", "full"),
     "gb_min": ("models/gb_min.pkl", "min"),
 }
+
+# XGBoost's Booster uses its own binary format, not portable via plain
+# pickle across xgboost versions; these two load via save_model()/load_model().
+XGBOOST_MODEL_KEYS = {"xgb_full", "xgb_min"}
 
 
 @dataclass(slots=True)
@@ -64,7 +68,10 @@ def load_yield_artifacts(artifact_dir: str | Path, load_models: bool = True) -> 
         for model_key, (relative_path, _) in MODEL_FILE_MAP.items():
             model_path = root / relative_path
             if model_path.exists():
-                models[model_key] = load_joblib(model_path)
+                if model_key in XGBOOST_MODEL_KEYS:
+                    models[model_key] = load_xgboost_model(model_path)
+                else:
+                    models[model_key] = load_joblib(model_path)
 
     return YieldArtifacts(
         artifact_dir=root,

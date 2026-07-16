@@ -1,0 +1,79 @@
+{
+  "items": [
+    {
+      "id": 4,
+      "module": "disease",
+      "model_name": "efficientnet",
+      "timestamp": "2026-07-15T18:50:43.884094",
+      "request_json": {
+        "filename": "22c12d6a-3c17-45be-b53b-f17f1b3f5168___FREC_Scab 3206_new30degFlipLR.JPG",
+        "model": "efficientnet"
+      },
+      "response_json": {
+        "prediction": {
+          "class_name": "Apple Scab",
+          "class_index": 0,
+          "confidence": 0.9999992847442627,
+          "verdict": "DISEASED",
+          "low_confidence_warning": false
+        },
+        "model_used": "efficientnet",
+        "top_predictions": [
+          {
+            "class_name": "Apple Scab",
+            "confidence": 0.9999992847442627
+          },
+          {
+            "class_name": "Black Rot",
+            "confidence": 5.595946959147113e-7
+          },
+          {
+            "class_name": "Cedar Apple Rust",
+            "confidence": 1.4083570931688882e-7
+          }
+        ],
+        "inference_time_ms": 7126
+      },
+      "latency_ms": 7126
+    },
+    {
+      "id": 1,
+      "module": "disease",
+      "model_name": "resnet",
+      "timestamp": "2026-07-15T16:25:23.567209",
+      "request_json": {
+        "filename": "leaf.jpg",
+        "model": null
+      },
+      "response_json": {
+        "prediction": {
+          "class_name": "Cedar Apple Rust",
+          "class_index": 2,
+          "confidence": 0.8978809118270874,
+          "verdict": "DISEASED",
+          "low_confidence_warning": false
+        },
+        "model_used": "resnet",
+        "top_predictions": [
+          {
+            "class_name": "Cedar Apple Rust",
+            "confidence": 0.8978809118270874
+          },
+          {
+            "class_name": "Apple Scab",
+            "confidence": 0.090224988758564
+          },
+          {
+            "class_name": "Black Rot",
+            "confidence": 0.011591062881052494
+          }
+        ],
+        "inference_time_ms": 3347
+      },
+      "latency_ms": 3347
+    }
+  ],
+  "total": 2,
+  "page": 1,
+  "page_size": 20
+}
