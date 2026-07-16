@@ -11,6 +11,8 @@ export async function predictDisease(file: File, model: string): Promise<Disease
   formData.append('file', file);
   if (model) formData.append('model', model);
 
-  const response = await apiClient.post<DiseasePredictionResponse>('/disease/predict', formData);
+  const response = await apiClient.post<DiseasePredictionResponse>('/disease/predict', formData, {
+    headers: { 'Content-Type': undefined },
+  });
   return response.data;
 }
