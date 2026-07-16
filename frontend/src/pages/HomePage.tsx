@@ -1,46 +1,89 @@
-import { Typography, Box, Paper, Grid } from '@mui/material';
+import { useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
+import { Check } from 'lucide-react';
+import FarmerCartIllustration from '@/components/illustrations/FarmerCartIllustration';
+import LeafIllustration from '@/components/illustrations/LeafIllustration';
+import HarvestIllustration from '@/components/illustrations/HarvestIllustration';
+import SoilIllustration from '@/components/illustrations/SoilIllustration';
+import ModuleBanner from '@/components/ModuleBanner';
+import OfferSection from '@/components/OfferSection';
 
-const modules = [
-  {
-    title: 'Crop Disease Detection',
-    description: 'TensorFlow CNN — classify apple leaf diseases from images.',
-  },
-  {
-    title: 'Crop Yield Prediction',
-    description: 'Scikit-learn ensemble — predict yield from agricultural data.',
-  },
-  {
-    title: 'Soil Health Advisor',
-    description: 'Rules + RF + LLM — multilingual farmer advisory.',
-  },
+const TRUST_POINTS = [
+  'Free, no sign-up needed',
+  'Answers in English, Hindi, or Telugu',
+  'Plain language, not lab reports',
 ];
 
 function HomePage() {
-  return (
-    <Box>
-      <Typography variant="h4" gutterBottom>
-        AI-Powered Agricultural Decision Support
-      </Typography>
-      <Typography variant="body1" color="text.secondary" paragraph>
-        AgriIntel integrates three independent AI modules into a unified platform.
-        Frontend pages will be implemented in Phase 4.
-      </Typography>
+  const location = useLocation();
 
-      <Grid container spacing={3} sx={{ mt: 2 }}>
-        {modules.map((mod) => (
-          <Grid item xs={12} md={4} key={mod.title}>
-            <Paper sx={{ p: 3, height: '100%' }}>
-              <Typography variant="h6" gutterBottom>
-                {mod.title}
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                {mod.description}
-              </Typography>
-            </Paper>
-          </Grid>
-        ))}
-      </Grid>
-    </Box>
+  useEffect(() => {
+    if (location.hash === '#contact-section') {
+      document.getElementById('contact-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }, [location.hash]);
+
+  return (
+    <div className="flex flex-col gap-10 sm:gap-14">
+      {/* Main banner */}
+      <div className="grid items-center gap-8 lg:grid-cols-[1.1fr_0.9fr] lg:gap-16">
+        <div>
+          <h1 className="font-serif text-3xl leading-tight text-foreground sm:text-4xl lg:text-5xl">
+            Straight answers for your crop, whenever you need them
+          </h1>
+          <p className="mt-4 max-w-lg text-base text-muted-foreground sm:text-lg">
+            AgriIntel looks at a photo or a few details from your field and tells you, in
+            plain language, what's going on and what to do next — built for farmers who
+            just want a straight answer, not a lab report.
+          </p>
+          <ul className="mt-6 flex flex-col gap-2.5 sm:flex-row sm:flex-wrap sm:gap-x-6 sm:gap-y-2">
+            {TRUST_POINTS.map((point) => (
+              <li key={point} className="flex items-center gap-2 text-sm text-muted-foreground">
+                <span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
+                  <Check className="size-3" />
+                </span>
+                {point}
+              </li>
+            ))}
+          </ul>
+        </div>
+        <div className="flex justify-center">
+          <FarmerCartIllustration className="w-full max-w-md" />
+        </div>
+      </div>
+
+      {/* Module banners */}
+      <div className="flex flex-col gap-6">
+        <ModuleBanner
+          to="/disease"
+          eyebrow="Plant health"
+          title="What's wrong with my plant?"
+          description="Take or upload a photo of a leaf and we'll tell you what's affecting it, along with simple steps to treat it — no need to know the disease name yourself."
+          cta="Check my plant"
+          illustration={<LeafIllustration className="size-24 sm:size-28" />}
+        />
+        <ModuleBanner
+          to="/yield"
+          eyebrow="Harvest planning"
+          title="How much can I expect to harvest?"
+          description="Enter your crop, field size, and a few growing conditions, and get a straight estimate of what you can expect to bring in this season."
+          cta="Estimate my harvest"
+          illustration={<HarvestIllustration className="size-24 sm:size-28" />}
+          reverse
+        />
+        <ModuleBanner
+          to="/soil"
+          eyebrow="Soil health"
+          title="Is my soil healthy?"
+          description="Enter your soil test readings and we'll explain what your soil needs — in English, Hindi, or Telugu — so you know exactly what to add."
+          cta="Check my soil"
+          illustration={<SoilIllustration className="size-24 sm:size-28" />}
+        />
+      </div>
+
+      {/* Offer + contact */}
+      <OfferSection />
+    </div>
   );
 }
 
