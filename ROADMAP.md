@@ -2,21 +2,33 @@
 
 The path from the redesigned farmer-facing frontend (Phase 4) to a real, shipped product.
 
-## Phase 4 — Frontend Redesign (current)
+## Phase 4 — Frontend Redesign ✅ Done
 
-Farmer-facing UI on Tailwind + shadcn/ui, mocked data, no backend wiring. Three focused tools
+Farmer-facing UI on Tailwind v4 + shadcn/ui, mocked data, no backend wiring. Three focused tools
 (disease, yield, soil) reachable from a plain-language home screen, plus a simple past-checks
-history view.
+history view. Merged to `main` via PR #11.
 
-## Phase 5 — Real API Integration
+## Phase 5 — Real API Integration ✅ Done
 
-Wire `frontend/src/services/{disease,yield,soil,history}.ts` to the live FastAPI endpoints
-documented in `docs/API_CONTRACTS.md`; remove the mock layer; handle real 400/422/503 error
-paths (invalid state/soil_type, LLM provider unavailable, validation failures); source
-crop/state/season/soil_type option lists from backend-validated values instead of the
-hardcoded arrays in `mocks/formOptions.ts`.
+Wired `frontend/src/services/{disease,yield,soil,history}.ts` to the live FastAPI endpoints
+documented in `docs/API_CONTRACTS.md`; removed the mock layer; added real error handling
+(toast notifications, backed by a new backend-wide `{detail, error_code}` response contract);
+added the previously-missing `GET /api/history/{id}` endpoint; rebuilt the history page with
+real server-side filtering and pagination. Merged via PR #12.
 
-## Phase 6 — Model Serving & Inference Reliability
+A follow-up round of fixes came from actually using the real forms against the real backend
+(the kind of gap tsc/lint/build/pytest can't catch): dropdown option lists in
+`mocks/formOptions.ts` are now sourced directly from each ML module's real training
+artifacts/dataset instead of hand-picked placeholders — and are per-module, since Disease/Soil
+and Yield were trained on different data with different valid categories; a dead "Crop" field
+was removed from the Soil form (the advisor module has no concept of crop); a browser-native
+HTML5 validation bug that silently blocked decimal input was fixed; the Soil advisory's LLM
+prompt had a data-pollution bug producing garbled, truncated output — fixed at the artifact
+level; and uploaded disease photos are now actually linked and shown in history (previously
+saved to disk but orphaned). See `CLAUDE_LOCAL.md` for the full technical write-up. Merged via
+PR #13/#14.
+
+## Phase 6 — Model Serving & Inference Reliability (next up)
 
 Cold-start latency for the TF/sklearn/LLM artifact loads at process start; timeout/retry
 handling on the LLM advisory call path; client-side image size/format guards before upload;

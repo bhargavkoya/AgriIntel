@@ -34,7 +34,13 @@ AgriIntel/
 ├── training/               # Immutable research notebooks
 │   └── inference/          # Phase 2: extracted inference modules
 ├── backend/app/            # FastAPI application
-├── frontend/src/           # React 19 + MUI application
+├── frontend/src/           # React 19 + Tailwind v4 + shadcn/ui application
+│   ├── pages/               # One component per route (Home, Disease, Yield, Soil, History, HistoryDetail)
+│   ├── services/            # Thin per-module axios wrappers — the only layer allowed to call the API
+│   ├── types/                # TS interfaces mirroring docs/API_CONTRACTS.md exactly
+│   ├── mocks/                # Static presentation config only (labels, dropdown options) — no fake data
+│   ├── components/          # Shared UI (shadcn primitives, illustrations, layout chrome)
+│   └── lib/                  # Small pure helpers (error parsing, relative time, count-up animation)
 ├── docs/                   # Architecture and API documentation
 └── data/                   # SQLite DB and uploaded files
 ```
@@ -43,6 +49,7 @@ AgriIntel/
 
 ```
 Frontend (React)
+  pages/*.tsx  →  services/*.ts (axios)
     ↓ REST API
 API Layer (FastAPI routes + Pydantic schemas)
     ↓
@@ -53,7 +60,34 @@ ML Inference Layer (training/inference/ modules)
 Artifacts (on-disk .keras, .pkl, JSON)
 ```
 
-Data persistence flows through repositories (SQLite, PostgreSQL-ready).
+Data persistence flows through repositories (SQLite, PostgreSQL-ready). See
+[ARCHITECTURE_DIAGRAM.md](ARCHITECTURE_DIAGRAM.md) for the full frontend-to-artifact diagram,
+including per-page frontend workflows.
+
+## Frontend Architecture (Phase 4/5 — implemented)
+
+The frontend never contains AI logic (hard rule, see below) — it only renders forms, calls the
+REST API, and presents results.
+
+- **Routing**: `App.tsx` → `MainLayout` (header/footer/toast host) wraps 7 routes: `/` (Home),
+  `/disease`, `/yield`, `/soil`, `/history`, `/history/:id`, and a catch-all 404.
+- **Services layer** (`services/*.ts`): one file per module (`disease.ts`, `yield.ts`, `soil.ts`,
+  `history.ts`), each a thin wrapper around a shared axios instance (`services/api.ts`, base URL
+  `/api` via the Vite dev proxy to `:8000`, overridable with `VITE_API_BASE_URL` for non-proxied
+  deployments). Pages never call axios directly.
+- **Types layer** (`types/*.ts`): hand-written interfaces kept in exact sync with
+  [API_CONTRACTS.md](API_CONTRACTS.md), so request/response shapes are type-checked end to end.
+- **Error handling**: every service call from a page is wrapped in try/catch; failures surface
+  via a shadcn `sonner` toast (`lib/apiError.ts` extracts the backend's real `detail` message)
+  while preserving form state so the user can retry without re-entering data.
+- **Presentation config** (`mocks/*.ts` — legacy naming from the Phase 4 mocked build, now holds
+  no fake data): per-module labels (e.g. model display names), dropdown option lists sourced
+  directly from each ML module's real training artifacts (not hand-picked — the Disease/Soil and
+  Yield modules were trained on different data with different valid categories), and nutrient
+  display config for the Soil page.
+- **History**: server-side module filtering (`?module=`) and "Load more" pagination against the
+  real paginated `GET /api/history` endpoint; detail view fetches a single record via
+  `GET /api/history/{id}`.
 
 ### Layer Responsibilities
 
@@ -133,25 +167,28 @@ Module C uses an `LLMProvider` protocol:
 
 `AdvisorService` depends on the protocol, not a specific provider.
 
-## Deployment (Phase 6)
+## Deployment
 
-Docker Compose with backend (Uvicorn) and frontend (Vite build served by nginx or dev proxy). Health checks on `/api/health`.
+Docker Compose with backend (Uvicorn) and frontend (Vite build served by nginx or dev proxy). Health checks on `/api/health`. Not yet started — see [ROADMAP.md](../ROADMAP.md) Phase 8 for the detailed deployment plan (this comes after model-serving reliability and offline/low-connectivity work, not immediately next).
 
 ## Development Phases
 
 | Phase | Scope | Status |
 |-------|-------|--------|
-| 1 | Architecture, scaffolding, documentation | Current |
-| 2 | Notebook inference extraction | Pending |
-| 3 | Backend services and API | Pending |
-| 4 | React frontend pages | Pending |
-| 5 | End-to-end integration | Pending |
-| 6 | Docker deployment and testing | Pending |
+| 1 | Architecture, scaffolding, documentation | Done |
+| 2 | Notebook inference extraction | Done |
+| 3 | Backend services and API | Done — real inference, persistence, real Groq LLM, verified against real artifacts end-to-end |
+| 4 | React frontend pages (Tailwind v4 + shadcn/ui) | Done |
+| 5 | End-to-end integration (real API wiring + post-usage fixes) | Done |
+
+Everything past Phase 5 is tracked in [ROADMAP.md](../ROADMAP.md), which breaks the remaining work into finer-grained phases (model-serving reliability, offline handling, deployment, real-user testing, hardening) than this table does.
 
 ## Related Documentation
 
+- [ARCHITECTURE_DIAGRAM.md](ARCHITECTURE_DIAGRAM.md) — ASCII diagrams + per-page/per-endpoint request workflows (frontend and backend)
 - [ARCHITECTURAL_CONSTRAINTS.md](ARCHITECTURAL_CONSTRAINTS.md) — hard rules
 - [ARCHITECTURE_DECISIONS.md](ARCHITECTURE_DECISIONS.md) — decision log
 - [ARTIFACT_CONTRACTS.md](ARTIFACT_CONTRACTS.md) — per-file artifact schemas
 - [API_CONTRACTS.md](API_CONTRACTS.md) — REST endpoint specifications
 - [NOTEBOOK_INTEGRATION.md](NOTEBOOK_INTEGRATION.md) — notebook extraction rules
+- [ROADMAP.md](../ROADMAP.md) — phase-by-phase plan from here to a shipped product
