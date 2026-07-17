@@ -109,7 +109,8 @@ function SoilPage() {
 
       <PageIntroBanner illustration={<SoilIllustration className="size-full" />}>
         Enter the readings from your soil test. We'll explain what each nutrient means
-        for your field and what to add — in the language you're most comfortable with.
+        for your field and what to add, based on ICAR (Indian Council of Agricultural
+        Research) guidelines — in the language you're most comfortable with.
       </PageIntroBanner>
 
       <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5">

@@ -25,6 +25,7 @@ def test_openapi_contains_phase3_routes() -> None:
     assert "/api/advisor/languages" in paths
     assert "/api/history" in paths
     assert "/api/history/{item_id}" in paths
+    assert "/api/contact" in paths
 
 
 def test_yield_predict_returns_503_without_artifacts() -> None:
@@ -77,6 +78,28 @@ def test_history_scaffold_response() -> None:
     assert response.status_code == 200
     body = response.json()
     assert body == {"items": [], "total": 0, "page": 1, "page_size": 20}
+
+
+def test_contact_endpoint_accepts_valid_submission() -> None:
+    payload = {"name": "Test Farmer", "email": "farmer@example.com", "role": "farmer", "message": "Hello!"}
+
+    with TestClient(app) as client:
+        response = client.post("/api/contact", json=payload)
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["received"] is True
+    assert isinstance(body["id"], int)
+
+
+def test_contact_endpoint_rejects_unknown_role() -> None:
+    payload = {"name": "Test Farmer", "email": "farmer@example.com", "role": "not-a-real-role", "message": "Hi"}
+
+    with TestClient(app) as client:
+        response = client.post("/api/contact", json=payload)
+
+    assert response.status_code == 422
+    assert response.json()["error_code"] == "VALIDATION_ERROR"
 
 
 def test_history_item_not_found_returns_404_with_error_code() -> None:

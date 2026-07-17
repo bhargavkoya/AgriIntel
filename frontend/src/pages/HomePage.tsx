@@ -9,9 +9,10 @@ import ModuleBanner from '@/components/ModuleBanner';
 import OfferSection from '@/components/OfferSection';
 
 const TRUST_POINTS = [
-  'Free, no sign-up needed',
-  'Answers in English, Hindi, or Telugu',
+  'No sign-up needed — answers in seconds',
+  'Soil advice available in English, Hindi, or Telugu',
   'Plain language, not lab reports',
+  'Grounded in agricultural science, not guesswork',
 ];
 
 function HomePage() {
@@ -32,9 +33,9 @@ function HomePage() {
             Straight answers for your crop, whenever you need them
           </h1>
           <p className="mt-4 max-w-lg text-base text-muted-foreground sm:text-lg">
-            AgriIntel looks at a photo or a few details from your field and tells you, in
-            plain language, what's going on and what to do next — built for farmers who
-            just want a straight answer, not a lab report.
+            AgriIntel looks at a photo or a few details from your field and gives you a
+            clear, plain-language read on what's going on and what to try next — built for
+            farmers who just want a straight answer, not a lab report.
           </p>
           <ul className="mt-6 flex flex-col gap-2.5 sm:flex-row sm:flex-wrap sm:gap-x-6 sm:gap-y-2">
             {TRUST_POINTS.map((point) => (
@@ -54,11 +55,19 @@ function HomePage() {
 
       {/* Module banners */}
       <div className="flex flex-col gap-6">
+        <div>
+          <h2 className="font-heading text-xl text-foreground sm:text-2xl">
+            Everything about your field, in one place
+          </h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Plant health, harvest planning, and soil health — no need for three different apps.
+          </p>
+        </div>
         <ModuleBanner
           to="/disease"
           eyebrow="Plant health"
           title="What's wrong with my plant?"
-          description="Take or upload a photo of a leaf and we'll tell you what's affecting it, along with simple steps to treat it — no need to know the disease name yourself."
+          description="Take or upload a photo of a leaf and we'll give you our best read on what's affecting it, along with simple steps to try — no need to know the disease name yourself."
           cta="Check my plant"
           illustration={<LeafIllustration className="size-24 sm:size-28" />}
         />
@@ -75,7 +84,7 @@ function HomePage() {
           to="/soil"
           eyebrow="Soil health"
           title="Is my soil healthy?"
-          description="Enter your soil test readings and we'll explain what your soil needs — in English, Hindi, or Telugu — so you know exactly what to add."
+          description="Enter your soil test readings and we'll explain what your soil needs — in English, Hindi, or Telugu — so you have a clear idea of what to add."
           cta="Check my soil"
           illustration={<SoilIllustration className="size-24 sm:size-28" />}
         />

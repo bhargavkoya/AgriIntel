@@ -6,6 +6,8 @@ import YieldPage from './pages/YieldPage';
 import SoilPage from './pages/SoilPage';
 import HistoryPage from './pages/HistoryPage';
 import HistoryDetailPage from './pages/HistoryDetailPage';
+import PrivacyPage from './pages/PrivacyPage';
+import TermsPage from './pages/TermsPage';
 import NotFoundPage from './pages/NotFoundPage';
 
 function App() {
@@ -18,6 +20,8 @@ function App() {
         <Route path="soil" element={<SoilPage />} />
         <Route path="history" element={<HistoryPage />} />
         <Route path="history/:id" element={<HistoryDetailPage />} />
+        <Route path="privacy" element={<PrivacyPage />} />
+        <Route path="terms" element={<TermsPage />} />
         <Route path="*" element={<NotFoundPage />} />
       </Route>
     </Routes>
