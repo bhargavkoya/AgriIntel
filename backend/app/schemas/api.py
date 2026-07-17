@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from typing import Literal
+
 from pydantic import BaseModel, ConfigDict, Field
 
 
@@ -171,3 +173,18 @@ class HistoryListResponse(BaseModel):
     total: int
     page: int
     page_size: int
+
+
+ContactRole = Literal["farmer", "partner", "investor_press", "feedback", "other"]
+
+
+class ContactRequest(BaseModel):
+    name: str = Field(..., min_length=1, max_length=255)
+    email: str = Field(..., min_length=3, max_length=255)
+    role: ContactRole
+    message: str = Field(..., min_length=1, max_length=5000)
+
+
+class ContactResponse(BaseModel):
+    id: int
+    received: bool = True

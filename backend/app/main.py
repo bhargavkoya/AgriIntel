@@ -5,7 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
 from app.api.errors import register_exception_handlers
-from app.api.routes import advisor, disease, health, history, yield_prediction
+from app.api.routes import advisor, contact, disease, health, history, yield_prediction
 from app.core.config import get_settings
 from app.core.lifespan import lifespan
 from app.core.logging import setup_logging
@@ -38,3 +38,4 @@ app.include_router(disease.router, prefix="/api")
 app.include_router(yield_prediction.router, prefix="/api")
 app.include_router(advisor.router, prefix="/api")
 app.include_router(history.router, prefix="/api")
+app.include_router(contact.router, prefix="/api")

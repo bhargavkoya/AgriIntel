@@ -10,6 +10,7 @@ from app.core.config import Settings
 from app.integrations.llm.base import LLMProviderError
 from app.integrations.llm.groq_provider import create_groq_provider
 from app.main import app
+from app.repositories.contact_repository import ContactRepository
 from app.repositories.file_repository import FileRepository
 from app.repositories.prediction_repository import PredictionRepository
 from app.services.advisor_service import AdvisorService
@@ -83,6 +84,15 @@ def test_file_repository_save_and_get(tmp_path, db_session_factory) -> None:
     assert metadata["filename"] == "leaf.jpg"
 
     assert asyncio.run(repository.get(999)) is None
+
+
+def test_contact_repository_create(db_session_factory) -> None:
+    repository = ContactRepository(session_factory=db_session_factory)
+
+    message_id = asyncio.run(
+        repository.create(name="Test Farmer", email="farmer@example.com", role="farmer", message="Hello!")
+    )
+    assert message_id == 1
 
 
 def test_persist_prediction_swallows_repository_errors() -> None:
